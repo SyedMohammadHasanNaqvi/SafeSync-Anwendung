@@ -23,12 +23,12 @@ public class LoginService {
                     String passwort = credentials[1];
 
                     if (benutzername.equals(username) && passwort.equals(password)) {
-                        System.out.println("Mil gaya");
+                        System.out.println("Username & Password are matched");
                         return true;
                     }
                 }
             }
-            System.out.println("Mil nhi gaya");
+            System.out.println("Username & Password aren't matched");
 
         } catch (IOException e) {
                 System.out.println("An error occured while reading the user&pass.txt: " + e.getMessage());
