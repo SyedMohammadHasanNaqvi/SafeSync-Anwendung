@@ -9,6 +9,6 @@ can upload, download and manage their files securely.
 - LoginUI: The login functionality is implemented through the creation of two distict classes;
 one for user authentication and another for managing user registration.
 
-### Next Steps
+## Next Steps
 - We need implement the functionality for the file upload and download buttons, as well as enhance
 the security mechanisms of the user authentication system.
