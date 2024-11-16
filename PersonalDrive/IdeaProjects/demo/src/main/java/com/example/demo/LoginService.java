@@ -9,7 +9,7 @@ public class LoginService {
     private final File userFile;
 
     public LoginService() {
-        this.userFile = new File("C:/Users/syedm/Downloads/IdeaProjects/user&pass.txt");
+        this.userFile = new File("C:/GitHub/Softwareentwicklung/user&pass.txt");
     }
 
     public boolean gegenprufen(String username, String password) {
@@ -22,7 +22,7 @@ public class LoginService {
                     String benutzername = credentials[0];
                     String passwort = credentials[1];
 
-                    if (benutzername.equals(username) && passwort.equals(password)) {
+                    if (benutzername.equals(username.toLowerCase().replaceAll("\\s", "")) && passwort.equals(password)) {
                         System.out.println("Username & Password are matched");
                         return true;
                     }

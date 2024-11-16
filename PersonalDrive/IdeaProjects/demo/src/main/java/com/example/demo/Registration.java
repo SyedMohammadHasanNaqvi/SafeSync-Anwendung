@@ -37,12 +37,12 @@ public class Registration {
     }
 
     public static boolean WriteUser (String username, String password) {
-        if (IsUserExist(username)) {
+        if (IsUserExist(username.toLowerCase().replaceAll("\\s", ""))) {
             System.out.println("This username: " + username + " is taken");
             return false;
         } else {
         try (FileWriter schreiben = new FileWriter("user&pass.txt", true)) {
-            schreiben.write(username + "," + password + "\n");
+            schreiben.write(username.toLowerCase().replaceAll("\\s", "") + "," + password + "\n");
             return true;
         } catch (IOException e) {
             System.out.println("An error occured while writing to the file");

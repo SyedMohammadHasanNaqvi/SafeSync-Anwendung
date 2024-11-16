@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 public class LoginUI extends JFrame{
     private JTextField usernameField;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
     private LoginService loginService;
 
     public LoginUI() {
@@ -25,7 +25,7 @@ public class LoginUI extends JFrame{
         panel.add(usernameField);
 
         panel.add(new JLabel("Password: "));
-        passwordField = new JTextField();
+        passwordField = new JPasswordField();
         panel.add(passwordField);
 
         JButton loginButton = new JButton("Log In");
@@ -45,12 +45,14 @@ public class LoginUI extends JFrame{
         @Override
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
-            String password = passwordField.getText();
+            String password = new String(passwordField.getPassword());
 
             if (loginService.gegenprufen(username, password)) {
                 JOptionPane.showMessageDialog(LoginUI.this, "Login Successful!");
                 dispose();
-                new FrontendUI();
+
+                FrontendUI neuesFenster = new FrontendUI();
+                neuesFenster.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(LoginUI.this, "Invalid username or password");
             }
@@ -63,11 +65,10 @@ public class LoginUI extends JFrame{
         @Override
         public void actionPerformed(ActionEvent e) {
             String benutzername = usernameField.getText();
-            String passwort = passwordField.getText();
+            String passwort = new String(passwordField.getPassword());
             
             if(Registration.WriteUser(benutzername, passwort)) {
                 JOptionPane.showMessageDialog(LoginUI.this, "Successfully Registered");
-                dispose();
             } else {
                 JOptionPane.showMessageDialog(LoginUI.this, "User already exists");
             }
