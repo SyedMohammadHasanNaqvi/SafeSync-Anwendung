@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import javax.swing.tree.TreePath;
 
@@ -20,6 +22,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 
 public class FrontendUI extends JFrame {
@@ -87,8 +90,8 @@ public class FrontendUI extends JFrame {
         getContentPane().add(splitPane, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
-        loadLocalFileSystem(new File("/home/sestudent/"));  // Load current local directory
-        loadServerFileSystem();              // Load server-side file structure (dummy data here)
+        loadLocalFileSystem(new File("D:\\University\\Software Engineering\\PATH"));  // Load current local directory
+        loadServerFileSystem(new File("D:\\University\\Software Engineering\\PATH"));              // Load server-side file structure (dummy data here)
     }
 
     // Load local file system structure
@@ -100,14 +103,15 @@ public class FrontendUI extends JFrame {
     }
 
     // Load server-side file structure (this can be populated via an HTTP request in a real app)
-    private void loadServerFileSystem() {
+    private void loadServerFileSystem(File dir) {
         // Dummy files for now; in a real application
         // !!! Change it so you get the structure from the server
         DefaultTreeModel model = (DefaultTreeModel) downloadFileTree.getModel();
         downloadRoot.removeAllChildren();
-        downloadRoot.add(new DefaultMutableTreeNode("server-file-1.txt"));
-        downloadRoot.add(new DefaultMutableTreeNode("server-file-2.jpg"));
-        downloadRoot.add(new DefaultMutableTreeNode("server-file-3.pdf"));
+        addFilesToNode(dir, downloadRoot);
+        // downloadRoot.add(new DefaultMutableTreeNode("server-file-1.txt"));
+        // downloadRoot.add(new DefaultMutableTreeNode("server-file-2.jpg"));
+        // downloadRoot.add(new DefaultMutableTreeNode("server-file-3.pdf"));
         model.reload();
     }
 
@@ -133,14 +137,26 @@ public class FrontendUI extends JFrame {
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpPost uploadFile = new HttpPost(serverUrl);
 
+                // here
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            // Add the file to the request
+            builder.addBinaryBody("file", selectedFile, ContentType.APPLICATION_OCTET_STREAM, selectedFile.getName());
 
+            // Set the entity to the HttpPost request
+            HttpEntity multipart = builder.build();
+            uploadFile.setEntity(multipart);
+
+            // Execute the request
+            CloseableHttpResponse response = client.execute(uploadFile);
+                
 
                 //!!! change the content type based on the file types your application should support (i.e. PDF, JPG, etc.)
-                FileEntity fileEntity = new FileEntity(selectedFile, ContentType.TEXT_PLAIN);
+                // FileEntity fileEntity = new FileEntity(selectedFile, ContentType.IMAGE_PNG);
 
+                // till here
 
-                uploadFile.setEntity(fileEntity);
-                CloseableHttpResponse response = client.execute(uploadFile);
+                // uploadFile.setEntity(fileEntity);
+                // CloseableHttpResponse response = client.execute(uploadFile);
                 HttpEntity responseEntity = response.getEntity();
                 System.out.println("Upload response: " + EntityUtils.toString(responseEntity));
             } catch (IOException | ParseException e) {
@@ -158,9 +174,15 @@ public class FrontendUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Please select a file to download.");
             return;
         }
-
+        String encodedFileName="";
         String selectedFile = selectedPath.getLastPathComponent().toString();
-        String downloadFileUrl = downloadUrl + selectedFile;
+        try {
+            encodedFileName = URLEncoder.encode(selectedFile, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        String downloadFileUrl = downloadUrl + encodedFileName;
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setSelectedFile(new File(selectedFile));
