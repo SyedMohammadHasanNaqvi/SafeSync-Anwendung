@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+
 
 public class FrontendUI extends JFrame {
 
@@ -72,10 +74,41 @@ public class FrontendUI extends JFrame {
         JLabel uploadLabel = new JLabel("Upload Directory (Local Files)", JLabel.CENTER);
         JLabel downloadLabel = new JLabel("Download Directory (Server Files)", JLabel.CENTER);
 
+        // Drag and drop Functionality//
+        class FileTransferHandler extends TransferHandler {
+            @Override
+            public boolean canImport(TransferSupport support) {
+                return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+            }
+        
+            @Override
+            public boolean importData(TransferSupport support) {
+                if (!canImport(support)) {
+                    return false;
+                }
+        
+                try {
+                    // Get the files from the dropped data
+                    java.util.List<File> files = (java.util.List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    for (File file : files) {
+                        // textArea.append(file.getAbsolutePath() + "\n");
+                        uploadFileToServer(file);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+                return true;
+            }
+        }
+
         // Upload Panel with label and tree
         JPanel uploadPanel = new JPanel(new BorderLayout());
         uploadPanel.add(uploadLabel, BorderLayout.NORTH);
         uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+        uploadPanel.setTransferHandler(new FileTransferHandler());
+
+        
 
         // Download Panel with label and tree
         JPanel downloadPanel = new JPanel(new BorderLayout());
@@ -91,7 +124,7 @@ public class FrontendUI extends JFrame {
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
         loadLocalFileSystem(new File("D:\\University\\Software Engineering\\PATH"));  // Load current local directory
-        loadServerFileSystem(new File("D:\\University\\Software Engineering\\PATH"));              // Load server-side file structure (dummy data here)
+        loadServerFileSystem(new File("D:\\University\\Software Engineering\\PATH")); // Load server-side file structure (dummy data here)
     }
 
     // Load local file system structure
@@ -109,9 +142,7 @@ public class FrontendUI extends JFrame {
         DefaultTreeModel model = (DefaultTreeModel) downloadFileTree.getModel();
         downloadRoot.removeAllChildren();
         addFilesToNode(dir, downloadRoot);
-        // downloadRoot.add(new DefaultMutableTreeNode("server-file-1.txt"));
-        // downloadRoot.add(new DefaultMutableTreeNode("server-file-2.jpg"));
-        // downloadRoot.add(new DefaultMutableTreeNode("server-file-3.pdf"));
+        
         model.reload();
     }
 
@@ -134,34 +165,38 @@ public class FrontendUI extends JFrame {
         int returnValue = fileChooser.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                HttpPost uploadFile = new HttpPost(serverUrl);
+            uploadFileToServer(selectedFile);
+        }
+    }
 
-                // here
-                MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            // Add the file to the request
-            builder.addBinaryBody("file", selectedFile, ContentType.APPLICATION_OCTET_STREAM, selectedFile.getName());
+    private void uploadFileToServer(File file){
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost uploadFile = new HttpPost(serverUrl);
 
-            // Set the entity to the HttpPost request
-            HttpEntity multipart = builder.build();
-            uploadFile.setEntity(multipart);
+            // here
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        // Add the file to the request
+        builder.addBinaryBody("file", file, ContentType.APPLICATION_OCTET_STREAM, file.getName());
 
-            // Execute the request
-            CloseableHttpResponse response = client.execute(uploadFile);
-                
+        // Set the entity to the HttpPost request
+        HttpEntity multipart = builder.build();
+        uploadFile.setEntity(multipart);
 
-                //!!! change the content type based on the file types your application should support (i.e. PDF, JPG, etc.)
-                // FileEntity fileEntity = new FileEntity(selectedFile, ContentType.IMAGE_PNG);
+        // Execute the request
+        CloseableHttpResponse response = client.execute(uploadFile);
+            
 
-                // till here
+            //!!! change the content type based on the file types your application should support (i.e. PDF, JPG, etc.)
+            // FileEntity fileEntity = new FileEntity(selectedFile, ContentType.IMAGE_PNG);
 
-                // uploadFile.setEntity(fileEntity);
-                // CloseableHttpResponse response = client.execute(uploadFile);
-                HttpEntity responseEntity = response.getEntity();
-                System.out.println("Upload response: " + EntityUtils.toString(responseEntity));
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
+            // till here
+
+            // uploadFile.setEntity(fileEntity);
+            // CloseableHttpResponse response = client.execute(uploadFile);
+            HttpEntity responseEntity = response.getEntity();
+            System.out.println("Upload response: " + EntityUtils.toString(responseEntity));
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
         }
     }
 

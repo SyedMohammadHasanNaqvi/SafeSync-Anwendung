@@ -26,11 +26,22 @@ public class FileController {
     private final String uploadDir = "D:\\University\\Software Engineering\\PATH\\";  // Change this to the desired path
 
     // !!! Ensure that the upload is functioning and exeptions are captured
+
+    public boolean fileExists(String fileName) {
+        File file = new File(uploadDir, fileName);
+        return file.exists();
+    }
+
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         // Insert your code here
+        System.out.println("HELLOOOOOOOOOOOO" +file.getOriginalFilename());
         if (file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("file is empty").toString();
+
+        }
+        else if (fileExists(file.getOriginalFilename())) {
+            return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("File already exists").toString();
 
         }
         try {
@@ -53,14 +64,9 @@ public class FileController {
     @GetMapping("/download")
     public byte[] downloadFile(@RequestParam String file) throws IOException {
         System.out.println("naveen kumaer" + file);
-        // if ( true ) {
-        //     return null;
-        // } else {
-        //     throw new IOException("File not found");
-        // }
+        
         if ( file!= "" ) {
             File dir = new File(uploadDir+file);
-        // try{
         if(dir.exists()){
             Resource resource = new UrlResource(dir.toURI());
             InputStream inputStream = resource.getInputStream();
@@ -72,10 +78,7 @@ public class FileController {
             }
             return outputStream.toByteArray(); // Return the byte array
         } 
-        //  }/catch (Exception e){
-        //     System.out.println(e.getMessage());
-        //     return null;
-        // }
+        
         } else {
             throw new IOException("File not found");
         }
