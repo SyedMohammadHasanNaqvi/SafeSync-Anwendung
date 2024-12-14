@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class FileController {
 
     // Use this directory as a server dummy storage
-    private final String uploadDir = "D:\\University\\Software Engineering\\PATH\\";  // Change this to the desired path
+    private final String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";  // Change this to the desired path
 
     // !!! Ensure that the upload is functioning and exeptions are captured
 

@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import javax.swing.tree.TreePath;
-
+import java.util.List;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -44,6 +44,22 @@ public class FrontendUI extends JFrame {
         setTitle("File Server UI");
         setSize(800, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        // Search Bar & Button
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        JTextField searchField = new JTextField();
+        JButton searchButton = new JButton("Search");
+
+        searchPanel.add(new JLabel("Search: "), BorderLayout.WEST);
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        searchPanel.add(searchButton, BorderLayout.EAST);
+
+        searchButton.addActionListener(e -> {
+            String query = searchField.getText().trim();
+
+            System.out.println(query);
+            performSearch(query);
+        });
 
         // File Trees
         uploadRoot = new DefaultMutableTreeNode("Local Files (Upload)");
@@ -101,14 +117,13 @@ public class FrontendUI extends JFrame {
                 return true;
             }
         }
+        
 
         // Upload Panel with label and tree
         JPanel uploadPanel = new JPanel(new BorderLayout());
         uploadPanel.add(uploadLabel, BorderLayout.NORTH);
         uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
         uploadPanel.setTransferHandler(new FileTransferHandler());
-
-        
 
         // Download Panel with label and tree
         JPanel downloadPanel = new JPanel(new BorderLayout());
@@ -120,11 +135,43 @@ public class FrontendUI extends JFrame {
         splitPane.setRightComponent(downloadPanel);
 
         // Main layout: SplitPane for file trees and buttons at the bottom
+        getContentPane().add(searchPanel, BorderLayout.NORTH);
         getContentPane().add(splitPane, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
-        loadLocalFileSystem(new File("D:\\University\\Software Engineering\\PATH"));  // Load current local directory
-        loadServerFileSystem(new File("D:\\University\\Software Engineering\\PATH")); // Load server-side file structure (dummy data here)
+        revalidate();
+        repaint();
+
+        loadLocalFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));  // Load current local directory
+        loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\")); // Load server-side file structure (dummy data here)
+    }
+
+    private void performSearch(String query) {
+        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+
+        SearchService searchService = new SearchService();
+
+        List<List<File>> searchResults = searchService.searchFiles(query, uploadDir, downloadDir);
+
+        List<File> filteredUploadFiles = searchResults.get(0);
+        List<File> filteredDownloadFiles = searchResults.get(1);
+
+        updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
+        updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+    }
+
+    public void updateFileTree(List<File> files, DefaultMutableTreeNode root, JTree tree) {
+        DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+
+        root.removeAllChildren();
+
+        for (File file : files) {
+            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(file.getName());
+            root.add(childNode);
+        }
+
+        model.reload(root);
     }
 
     // Load local file system structure
