@@ -56,8 +56,6 @@ public class FrontendUI extends JFrame {
 
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
-
-            System.out.println(query);
             performSearch(query);
         });
 
@@ -242,6 +240,8 @@ public class FrontendUI extends JFrame {
             // CloseableHttpResponse response = client.execute(uploadFile);
             HttpEntity responseEntity = response.getEntity();
             System.out.println("Upload response: " + EntityUtils.toString(responseEntity));
+            loadLocalFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));
+            loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
