@@ -239,11 +239,17 @@ public class FrontendUI extends JFrame {
             // uploadFile.setEntity(fileEntity);
             // CloseableHttpResponse response = client.execute(uploadFile);
             HttpEntity responseEntity = response.getEntity();
-            System.out.println("Upload response: " + EntityUtils.toString(responseEntity));
+            String responseString = EntityUtils.toString(responseEntity);
+            if (response.getCode() == 200) {
+                JOptionPane.showMessageDialog(this, "File uploaded successfully!", "Upload Successful", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "File upload failed: " + responseString, "Upload Error", JOptionPane.ERROR_MESSAGE);
+            }
             loadLocalFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));
             loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Server not running", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
