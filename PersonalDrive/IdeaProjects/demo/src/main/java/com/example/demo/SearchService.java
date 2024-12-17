@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +58,33 @@ public class SearchService {
     private List<File> filterFilesBySize(List<File> files, int maxSizeBytes) {
         return files.stream()
                 .filter(file -> file.length() <= maxSizeBytes)
+                .collect(Collectors.toList());
+    }
+
+    public List<List<File>> searchFilesByDate(String dateString, String uploadDir, String downloadDir) {
+        List<File> uploadFiles = readFiles(uploadDir);
+        List<File> downloadFiles = readFiles(downloadDir);
+
+        List<File> filteredUploadFiles = filterFilesByDate(dateString, uploadFiles);
+        List<File> filteredDownloadFiles = filterFilesByDate(dateString, downloadFiles);
+
+        List<List<File>> result = new ArrayList<>();
+        result.add(filteredUploadFiles);
+        result.add(filteredDownloadFiles);
+
+        return result;
+    }
+
+    private List<File> filterFilesByDate(String dateString, List<File> files) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        return files.stream()
+                .filter(file -> {
+                    long lastModified = file.lastModified();
+                    String fileDate = dateFormat.format(new java.util.Date(lastModified));
+
+                    return fileDate.equals(dateString);
+                })
                 .collect(Collectors.toList());
     }
 }

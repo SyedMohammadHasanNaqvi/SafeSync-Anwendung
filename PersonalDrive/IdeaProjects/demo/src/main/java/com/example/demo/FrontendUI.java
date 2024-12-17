@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import javax.swing.tree.TreePath;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -48,14 +49,51 @@ public class FrontendUI extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Search Bar & Button
-        JPanel searchPanel = new JPanel(new BorderLayout());
+        JPanel searchPanel = new JPanel();
+        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
+
+        JPanel searchSubPanel = new JPanel(new BorderLayout());
+        searchSubPanel.add(new JLabel("Search: "), BorderLayout.WEST);
         JTextField searchField = new JTextField();
+        searchSubPanel.add(searchField, BorderLayout.CENTER);
         JButton searchButton = new JButton("Search");
+        searchSubPanel.add(searchButton, BorderLayout.EAST);
+        
+        JPanel dateSubPanel = new JPanel(new BorderLayout());
+        dateSubPanel.add(new Label("Enter Date (DD-MM-YYYY)"), BorderLayout.WEST);
+        JTextField dateField = new JTextField();
+        dateSubPanel.add(dateField, BorderLayout.CENTER);
+        JButton dateButton = new JButton("Apply");
+        dateSubPanel.add(dateButton, BorderLayout.EAST);
 
-        searchPanel.add(new JLabel("Search: "), BorderLayout.WEST);
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.add(searchButton, BorderLayout.EAST);
+        searchPanel.add(searchSubPanel);
+        searchPanel.add(dateSubPanel);
 
+        searchButton.addActionListener(e -> {
+            String query = searchField.getText().trim();
+            performSearch(query);
+        });
+
+        dateButton.addActionListener(e -> {
+            String dateString  = dateField.getText().trim();
+
+            if (dateString.isEmpty()) {
+                applyDefaultFilter();
+                return;
+            }
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            dateFormat.setLenient(false);
+
+            try {
+                dateFormat.parse(dateString);
+                applyDate(dateString);
+            } catch (java.text.ParseException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid Date Format", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        
         // Size Filter Panel
         JPanel sizeFilterPanel = new JPanel(new BorderLayout());
         sizeSlider = new JSlider(0, 1024000, 1024000);
@@ -69,10 +107,6 @@ public class FrontendUI extends JFrame {
         sizeFilterPanel.add(sizeRangeLabel, BorderLayout.NORTH);
         sizeFilterPanel.add(sizeSlider, BorderLayout.CENTER);
 
-        searchButton.addActionListener(e -> {
-            String query = searchField.getText().trim();
-            performSearch(query);
-        });
 
         // File Trees
         uploadRoot = new DefaultMutableTreeNode("Local Files (Upload)");
@@ -97,7 +131,7 @@ public class FrontendUI extends JFrame {
 
         // Split pane to hold both file trees (upload and download)
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(400);  // Initial divider position
+        splitPane.setDividerLocation(300);  // Initial divider position
 
         // Labels for file trees
         JLabel uploadLabel = new JLabel("Upload Directory (Local Files)", JLabel.CENTER);
@@ -130,7 +164,6 @@ public class FrontendUI extends JFrame {
                 return true;
             }
         }
-        
 
         // Upload Panel with label and tree
         JPanel uploadPanel = new JPanel(new BorderLayout());
@@ -165,6 +198,23 @@ public class FrontendUI extends JFrame {
         sizeRangeLabel.setText("File Size: 0KB - " + maxSizeKB + "KB");
     }
 
+    private void applyDefaultFilter() {
+        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    
+        SearchService searchService = new SearchService();
+    
+        // Get all files without any filtering
+        List<List<File>> searchResults = searchService.searchFiles("", uploadDir, downloadDir);
+    
+        List<File> allUploadFiles = searchResults.get(0);
+        List<File> allDownloadFiles = searchResults.get(1);
+    
+        // Update the trees with all the files
+        updateFileTree(allUploadFiles, uploadRoot, uploadFileTree);
+        updateFileTree(allDownloadFiles, downloadRoot, downloadFileTree);
+    }
+
     private void performSizeFilter() {
         int maxSize = sizeSlider.getValue();
         String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
@@ -172,6 +222,21 @@ public class FrontendUI extends JFrame {
 
         SearchService searchService = new SearchService();
         List<List<File>> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
+
+        List<File> filteredUploadFiles = searchResults.get(0);
+        List<File> filteredDownloadFiles = searchResults.get(1);
+
+        updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
+        updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+    }
+
+    private void applyDate(String dateString) {
+        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+
+        SearchService searchService = new SearchService();
+
+        List<List<File>> searchResults = searchService.searchFilesByDate(dateString, uploadDir, downloadDir);
 
         List<File> filteredUploadFiles = searchResults.get(0);
         List<File> filteredDownloadFiles = searchResults.get(1);
