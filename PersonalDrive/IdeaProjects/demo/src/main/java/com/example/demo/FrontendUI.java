@@ -35,6 +35,8 @@ public class FrontendUI extends JFrame {
     private DefaultMutableTreeNode downloadRoot;
     private JButton uploadButton;
     private JButton downloadButton;
+    private JSlider sizeSlider;
+    private JLabel sizeRangeLabel;
 
     // Replace with your server URLs
     private String serverUrl = "http://localhost:8080/upload";
@@ -53,6 +55,19 @@ public class FrontendUI extends JFrame {
         searchPanel.add(new JLabel("Search: "), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
+
+        // Size Filter Panel
+        JPanel sizeFilterPanel = new JPanel(new BorderLayout());
+        sizeSlider = new JSlider(0, 1024000, 1024000);
+        sizeSlider.setMajorTickSpacing(102400);
+        sizeSlider.setMinorTickSpacing(10240);
+
+        sizeRangeLabel = new JLabel("File Size: 0 KB - 1000 KB");
+        sizeSlider.addChangeListener(e -> updateSizeLabel());
+        sizeSlider.addChangeListener(e -> performSizeFilter());
+
+        sizeFilterPanel.add(sizeRangeLabel, BorderLayout.NORTH);
+        sizeFilterPanel.add(sizeSlider, BorderLayout.CENTER);
 
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
@@ -134,6 +149,7 @@ public class FrontendUI extends JFrame {
 
         // Main layout: SplitPane for file trees and buttons at the bottom
         getContentPane().add(searchPanel, BorderLayout.NORTH);
+        getContentPane().add(sizeFilterPanel, BorderLayout.WEST);
         getContentPane().add(splitPane, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
@@ -142,6 +158,26 @@ public class FrontendUI extends JFrame {
 
         loadLocalFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));  // Load current local directory
         loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\")); // Load server-side file structure (dummy data here)
+    }
+
+    private void updateSizeLabel() {
+        int maxSizeKB = sizeSlider.getValue() / 1024;
+        sizeRangeLabel.setText("File Size: 0KB - " + maxSizeKB + "KB");
+    }
+
+    private void performSizeFilter() {
+        int maxSize = sizeSlider.getValue();
+        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+
+        SearchService searchService = new SearchService();
+        List<List<File>> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
+
+        List<File> filteredUploadFiles = searchResults.get(0);
+        List<File> filteredDownloadFiles = searchResults.get(1);
+
+        updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
+        updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
     }
 
     private void performSearch(String query) {

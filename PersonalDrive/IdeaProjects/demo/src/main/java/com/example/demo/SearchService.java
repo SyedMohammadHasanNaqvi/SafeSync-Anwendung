@@ -39,4 +39,24 @@ public class SearchService {
 
         return result;
     }
+
+    public List<List<File>> searchFilesBySize(String uploadDir, String downloadDir, int maxSize) {
+        List<File> uploadFiles = readFiles(uploadDir);
+        List<File> downloadFiles = readFiles(downloadDir);
+
+        List<File> filteredUploadFiles = filterFilesBySize(uploadFiles, maxSize);
+        List<File> filteredDownloadFiles = filterFilesBySize(downloadFiles, maxSize);
+
+        List<List<File>> result = new ArrayList<>();
+        result.add(filteredUploadFiles);
+        result.add(filteredDownloadFiles);
+
+        return result;
+    }
+
+    private List<File> filterFilesBySize(List<File> files, int maxSizeBytes) {
+        return files.stream()
+                .filter(file -> file.length() <= maxSizeBytes)
+                .collect(Collectors.toList());
+    }
 }
