@@ -6,6 +6,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,24 +51,42 @@ public class FrontendUI extends JFrame {
 
         // Search Bar & Button
         JPanel searchPanel = new JPanel();
-        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
+        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
         JPanel searchSubPanel = new JPanel(new BorderLayout());
         searchSubPanel.add(new JLabel("Search: "), BorderLayout.WEST);
-        JTextField searchField = new JTextField();
+        JTextField searchField = new JTextField(15);
         searchSubPanel.add(searchField, BorderLayout.CENTER);
         JButton searchButton = new JButton("Search");
         searchSubPanel.add(searchButton, BorderLayout.EAST);
         
         JPanel dateSubPanel = new JPanel(new BorderLayout());
         dateSubPanel.add(new Label("Enter Date (DD-MM-YYYY)"), BorderLayout.WEST);
-        JTextField dateField = new JTextField();
+        JTextField dateField = new JTextField(10);
         dateSubPanel.add(dateField, BorderLayout.CENTER);
         JButton dateButton = new JButton("Apply");
         dateSubPanel.add(dateButton, BorderLayout.EAST);
 
+        String[] sortOptions = {"Sort", "Decending Order", "Ascending Order"};
+        JComboBox<String> sortComboBox = new JComboBox<>(sortOptions);
+
+        // // sortComboBox.addActionListener(new ActionListener() {
+        // //     @Override
+        // //     public void actionPerformed(ActionEvent e) {
+        // //         String selectedOption = (String) sortComboBox.getSelectedItem();
+        // //         if (selectedOption.equals("Ascending Order")) {
+        // //             sortFilesBySize(true);
+        // //         } else if (selectedOption.equals("Descending Order")) {
+        // //             sortFilesBySize(false);
+        // //         } else if (selectedOption.equals("Sort")) {
+        // //             applyDefaultFilter();
+        // //         }
+        // //     }
+        // // });
+
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
+        searchPanel.add(sortComboBox);
 
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
@@ -96,16 +115,14 @@ public class FrontendUI extends JFrame {
         
         // Size Filter Panel
         JPanel sizeFilterPanel = new JPanel(new BorderLayout());
-        sizeSlider = new JSlider(0, 1024000, 1024000);
-        sizeSlider.setMajorTickSpacing(102400);
-        sizeSlider.setMinorTickSpacing(10240);
+        JButton sortLargestButton = new JButton("Sort by Largest Size");
+        JButton sortSmallestButton = new JButton("Sort by Smallest Size");
 
-        sizeRangeLabel = new JLabel("File Size: 0 KB - 1000 KB");
-        sizeSlider.addChangeListener(e -> updateSizeLabel());
-        sizeSlider.addChangeListener(e -> performSizeFilter());
+        sizeFilterPanel.add(sortLargestButton, BorderLayout.NORTH);
+        sizeFilterPanel.add(sortSmallestButton, BorderLayout.SOUTH);
 
-        sizeFilterPanel.add(sizeRangeLabel, BorderLayout.NORTH);
-        sizeFilterPanel.add(sizeSlider, BorderLayout.CENTER);
+        sortLargestButton.addActionListener(e -> sortFilesBySize(true));
+        sortSmallestButton.addActionListener(e -> sortFilesBySize(false));
 
 
         // File Trees
@@ -193,10 +210,10 @@ public class FrontendUI extends JFrame {
         loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\")); // Load server-side file structure (dummy data here)
     }
 
-    private void updateSizeLabel() {
-        int maxSizeKB = sizeSlider.getValue() / 1024;
-        sizeRangeLabel.setText("File Size: 0KB - " + maxSizeKB + "KB");
-    }
+    // private void updateSizeLabel() {
+    //     int maxSizeKB = sizeSlider.getValue() / 1024;
+    //     sizeRangeLabel.setText("File Size: 0KB - " + maxSizeKB + "KB");
+    // }
 
     private void applyDefaultFilter() {
         String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
@@ -215,20 +232,34 @@ public class FrontendUI extends JFrame {
         updateFileTree(allDownloadFiles, downloadRoot, downloadFileTree);
     }
 
-    private void performSizeFilter() {
-        int maxSize = sizeSlider.getValue();
-        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    // private void performSizeFilter() {
+    //     int maxSize = sizeSlider.getValue();
+    //     String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    //     String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
 
-        SearchService searchService = new SearchService();
-        List<List<File>> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
+    //     SearchService searchService = new SearchService();
+    //     List<List<File>> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
 
-        List<File> filteredUploadFiles = searchResults.get(0);
-        List<File> filteredDownloadFiles = searchResults.get(1);
+    //     List<File> filteredUploadFiles = searchResults.get(0);
+    //     List<File> filteredDownloadFiles = searchResults.get(1);
 
-        updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
-        updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
-    }
+    //     updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
+    //     updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+    //}
+
+    private void sortFilesBySize(boolean largestFirst) {
+    String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+
+    SearchService searchService = new SearchService();
+    List<List<File>> sortedFiles = searchService.sortFilesBySize(uploadDir, downloadDir, largestFirst);
+
+    List<File> sortedUploadFiles = sortedFiles.get(0);
+    List<File> sortedDownloadFiles = sortedFiles.get(1);
+
+    updateFileTree(sortedUploadFiles, uploadRoot, uploadFileTree);
+    updateFileTree(sortedDownloadFiles, downloadRoot, downloadFileTree);
+}
 
     private void applyDate(String dateString) {
         String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
