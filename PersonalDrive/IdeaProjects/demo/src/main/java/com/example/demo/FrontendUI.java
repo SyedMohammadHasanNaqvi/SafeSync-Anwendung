@@ -1,6 +1,8 @@
 package com.example.demo;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
@@ -37,15 +39,16 @@ public class FrontendUI extends JFrame {
     private DefaultMutableTreeNode downloadRoot;
     private JButton uploadButton;
     private JButton downloadButton;
-    private JSlider sizeSlider;
-    private JLabel sizeRangeLabel;
+    private JTextField dateField;
+    // private JSlider sizeSlider;
+    // private JLabel sizeRangeLabel;
 
     // Replace with your server URLs
     private String serverUrl = "http://localhost:8080/upload";
     private String downloadUrl = "http://localhost:8080/download?file=";
 
     public FrontendUI() {
-        setTitle("File Server UI");
+        setTitle("Office Drive");
         setSize(800, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -59,30 +62,78 @@ public class FrontendUI extends JFrame {
         searchSubPanel.add(searchField, BorderLayout.CENTER);
         JButton searchButton = new JButton("Search");
         searchSubPanel.add(searchButton, BorderLayout.EAST);
+
+        JPanel askDate = new JPanel(new BorderLayout());
+        Label dateLabel = new Label("Enter Date");
+        askDate.add(dateLabel, BorderLayout.NORTH);
+        Label formatLabel = new Label("DD-MM-YYYY");
+        askDate.add(formatLabel, BorderLayout.CENTER);
         
         JPanel dateSubPanel = new JPanel(new BorderLayout());
-        dateSubPanel.add(new Label("Enter Date (DD-MM-YYYY)"), BorderLayout.WEST);
+        dateSubPanel.add(askDate, BorderLayout.WEST);
         JTextField dateField = new JTextField(10);
         dateSubPanel.add(dateField, BorderLayout.CENTER);
         JButton dateButton = new JButton("Apply");
         dateSubPanel.add(dateButton, BorderLayout.EAST);
 
+        dateField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                String dateText = dateField.getText();
+                if (dateText.length() == 2 && !dateText.contains("-")) {
+                    SwingUtilities.invokeLater(() -> {
+                        dateField.setText(dateText + "-");
+                    });
+                } else if (dateText.length() == 5 && !dateText.substring(3).equals("-")) {
+                    SwingUtilities.invokeLater(() -> {
+                        // Ensure hyphen is in the right place between DD and MM
+                        dateField.setText(dateText.substring(0, 5) + "-2025");
+                    });
+                }
+
+                if (dateText.isEmpty()) {
+                    applyDefaultFilter();
+                    dateField.setBackground(Color.WHITE);
+                } else if (validDate(dateText)) {
+                    dateField.setBackground(Color.GREEN);
+                } else {
+                    dateField.setBackground(Color.PINK);
+                }
+            }
+
+             @Override
+            public void removeUpdate(DocumentEvent e) {
+                String dateText = dateField.getText();
+                if (dateText.isEmpty()) {
+                    applyDefaultFilter();
+                    dateField.setBackground(Color.WHITE);
+                } else if (validDate(dateText)) {
+                    dateField.setBackground(Color.GREEN);
+                } else {
+                    dateField.setBackground(Color.PINK);
+                }
+            }
+        
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }});
+
         String[] sortOptions = {"Sort", "Decending Order", "Ascending Order"};
         JComboBox<String> sortComboBox = new JComboBox<>(sortOptions);
 
-        // // sortComboBox.addActionListener(new ActionListener() {
-        // //     @Override
-        // //     public void actionPerformed(ActionEvent e) {
-        // //         String selectedOption = (String) sortComboBox.getSelectedItem();
-        // //         if (selectedOption.equals("Ascending Order")) {
-        // //             sortFilesBySize(true);
-        // //         } else if (selectedOption.equals("Descending Order")) {
-        // //             sortFilesBySize(false);
-        // //         } else if (selectedOption.equals("Sort")) {
-        // //             applyDefaultFilter();
-        // //         }
-        // //     }
-        // // });
+        sortComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedOption = sortComboBox.getSelectedItem().toString();
+                if (selectedOption.equals("Ascending Order")) {
+                    sortFilesBySize(true);
+                } else if (selectedOption.equals("Decending Order")) {
+                    sortFilesBySize(false);
+                } else {
+                    applyDefaultFilter();
+                }
+            }
+        });
 
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
@@ -114,15 +165,15 @@ public class FrontendUI extends JFrame {
         
         
         // Size Filter Panel
-        JPanel sizeFilterPanel = new JPanel(new BorderLayout());
-        JButton sortLargestButton = new JButton("Sort by Largest Size");
-        JButton sortSmallestButton = new JButton("Sort by Smallest Size");
+        // JPanel sizeFilterPanel = new JPanel(new BorderLayout());
+        // JButton sortLargestButton = new JButton("Sort by Largest Size");
+        // JButton sortSmallestButton = new JButton("Sort by Smallest Size");
 
-        sizeFilterPanel.add(sortLargestButton, BorderLayout.NORTH);
-        sizeFilterPanel.add(sortSmallestButton, BorderLayout.SOUTH);
+        // sizeFilterPanel.add(sortLargestButton, BorderLayout.NORTH);
+        // sizeFilterPanel.add(sortSmallestButton, BorderLayout.SOUTH);
 
-        sortLargestButton.addActionListener(e -> sortFilesBySize(true));
-        sortSmallestButton.addActionListener(e -> sortFilesBySize(false));
+        // sortLargestButton.addActionListener(e -> sortFilesBySize(true));
+        // sortSmallestButton.addActionListener(e -> sortFilesBySize(false));
 
 
         // File Trees
@@ -148,7 +199,7 @@ public class FrontendUI extends JFrame {
 
         // Split pane to hold both file trees (upload and download)
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(300);  // Initial divider position
+        splitPane.setDividerLocation(400);  // Initial divider position
 
         // Labels for file trees
         JLabel uploadLabel = new JLabel("Upload Directory (Local Files)", JLabel.CENTER);
@@ -199,7 +250,7 @@ public class FrontendUI extends JFrame {
 
         // Main layout: SplitPane for file trees and buttons at the bottom
         getContentPane().add(searchPanel, BorderLayout.NORTH);
-        getContentPane().add(sizeFilterPanel, BorderLayout.WEST);
+        // getContentPane().add(sizeFilterPanel, BorderLayout.WEST);
         getContentPane().add(splitPane, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
@@ -214,6 +265,29 @@ public class FrontendUI extends JFrame {
     //     int maxSizeKB = sizeSlider.getValue() / 1024;
     //     sizeRangeLabel.setText("File Size: 0KB - " + maxSizeKB + "KB");
     // }
+
+    private boolean validDate(String date) {
+        String regex = "^\\d{2}-\\d{2}-\\d{4}$";
+    
+        if (!date.matches(regex)) {
+            return false;
+        }
+        
+        String dayPart = date.substring(0, 2);
+        String monthPart = date.substring(3, 5);
+        String yearPart = date.substring(6, 10);
+
+        int day = Integer.parseInt(dayPart);
+        int month = Integer.parseInt(monthPart);
+        int year = Integer.parseInt(yearPart);
+    
+        if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2024 || year > 2025) {
+            return false;
+        }
+        
+        return true;
+    }
+
 
     private void applyDefaultFilter() {
         String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
@@ -231,6 +305,7 @@ public class FrontendUI extends JFrame {
         updateFileTree(allUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(allDownloadFiles, downloadRoot, downloadFileTree);
     }
+
 
     // private void performSizeFilter() {
     //     int maxSize = sizeSlider.getValue();
