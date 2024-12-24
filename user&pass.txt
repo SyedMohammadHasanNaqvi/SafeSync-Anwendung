@@ -1,2 +1,3 @@
 ubaid,123
 smhn,123
+ahmed,pass

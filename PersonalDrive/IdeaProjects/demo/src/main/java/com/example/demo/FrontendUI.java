@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import javax.swing.tree.TreePath;
 import java.util.List;
 import java.text.SimpleDateFormat;
+import java.awt.event.FocusEvent;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -57,24 +59,86 @@ public class FrontendUI extends JFrame {
         searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
         JPanel searchSubPanel = new JPanel(new BorderLayout());
-        searchSubPanel.add(new JLabel("Search: "), BorderLayout.WEST);
+        JLabel iconLabel = new JLabel("\uD83D\uDD0D");
+        iconLabel.setFont(new Font("", Font.PLAIN, 18));
+        searchPanel.add(iconLabel, BorderLayout.WEST);
+        // searchSubPanel.add(new JLabel("\uD83D\uDD0D  "), BorderLayout.WEST);
         JTextField searchField = new JTextField(15);
+        searchField.setText("Search");
         searchSubPanel.add(searchField, BorderLayout.CENTER);
-        JButton searchButton = new JButton("Search");
-        searchSubPanel.add(searchButton, BorderLayout.EAST);
+        // JButton searchButton = new JButton("Search");
+        // searchSubPanel.add(searchButton, BorderLayout.EAST);
 
-        JPanel askDate = new JPanel(new BorderLayout());
-        Label dateLabel = new Label("Enter Date");
-        askDate.add(dateLabel, BorderLayout.NORTH);
-        Label formatLabel = new Label("DD-MM-YYYY");
-        askDate.add(formatLabel, BorderLayout.CENTER);
+        // JPanel askDate = new JPanel(new BorderLayout());
+        // JLabel dateLabel = new JLabel("Enter Date");
+        // askDate.add(dateLabel, BorderLayout.NORTH);
+        // Label formatLabel = new Label("(DD-MM-YYYY)");
+        // askDate.add(formatLabel, BorderLayout.CENTER);
         
         JPanel dateSubPanel = new JPanel(new BorderLayout());
-        dateSubPanel.add(askDate, BorderLayout.WEST);
+        // dateSubPanel.add(askDate, BorderLayout.WEST);
         JTextField dateField = new JTextField(10);
+        dateField.setText("DD-MM-YYYY");
         dateSubPanel.add(dateField, BorderLayout.CENTER);
         JButton dateButton = new JButton("Apply");
         dateSubPanel.add(dateButton, BorderLayout.EAST);
+
+        searchField.addFocusListener(new FocusListener() {
+           @Override
+           public void focusGained(FocusEvent e) {
+            if (searchField.getText().equals("Search")) {
+                searchField.setText("");
+            }
+           } 
+
+           @Override
+           public void focusLost(FocusEvent e) {
+            if (searchField.getText().isEmpty()) {
+                searchField.setText(("Search"));
+            }
+           }
+        });
+
+        dateField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+             if (dateField.getText().equals("DD-MM-YYYY")) {
+                 dateField.setText("");
+             }
+            } 
+ 
+            @Override
+            public void focusLost(FocusEvent e) {
+             if (dateField.getText().isEmpty()) {
+                 dateField.setText(("DD-MM-YYYY"));
+             }
+            }
+         });
+
+        SwingUtilities.invokeLater(() -> {
+            searchPanel.requestFocusInWindow();
+        });
+
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                String searchText = searchField.getText().trim();
+                
+                performSearch(searchText);}
+            
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                String searchText = searchField.getText().trim();
+                if (searchText.equals("Search")) {
+                    applyDefaultFilter();
+                } else {
+                performSearch(searchText);}
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+        });
 
         dateField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -86,12 +150,11 @@ public class FrontendUI extends JFrame {
                     });
                 } else if (dateText.length() == 5 && !dateText.substring(3).equals("-")) {
                     SwingUtilities.invokeLater(() -> {
-                        // Ensure hyphen is in the right place between DD and MM
                         dateField.setText(dateText.substring(0, 5) + "-2025");
                     });
                 }
 
-                if (dateText.isEmpty()) {
+                if (dateText.isEmpty() || dateText.equals("DD-MM-YYYY")) {
                     applyDefaultFilter();
                     dateField.setBackground(Color.WHITE);
                 } else if (validDate(dateText)) {
@@ -104,7 +167,7 @@ public class FrontendUI extends JFrame {
              @Override
             public void removeUpdate(DocumentEvent e) {
                 String dateText = dateField.getText();
-                if (dateText.isEmpty()) {
+                if (dateText.isEmpty() || dateText.equals("DD-MM-YYYY")) {
                     applyDefaultFilter();
                     dateField.setBackground(Color.WHITE);
                 } else if (validDate(dateText)) {
@@ -139,10 +202,10 @@ public class FrontendUI extends JFrame {
         searchPanel.add(dateSubPanel);
         searchPanel.add(sortComboBox);
 
-        searchButton.addActionListener(e -> {
-            String query = searchField.getText().trim();
-            performSearch(query);
-        });
+        // searchButton.addActionListener(e -> {
+        //     String query = searchField.getText().trim();
+        //     performSearch(query);
+        // });
 
         dateButton.addActionListener(e -> {
             String dateString  = dateField.getText().trim();
@@ -177,11 +240,11 @@ public class FrontendUI extends JFrame {
 
 
         // File Trees
-        uploadRoot = new DefaultMutableTreeNode("Local Files (Upload)");
+        uploadRoot = new DefaultMutableTreeNode("Uploaded Files");
         uploadFileTree = new JTree(uploadRoot);
         JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
 
-        downloadRoot = new DefaultMutableTreeNode("Server Files (Download)");
+        downloadRoot = new DefaultMutableTreeNode("Downloadable Files");
         downloadFileTree = new JTree(downloadRoot);
         JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
 
@@ -199,11 +262,11 @@ public class FrontendUI extends JFrame {
 
         // Split pane to hold both file trees (upload and download)
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(400);  // Initial divider position
+        splitPane.setDividerLocation(380);  // Initial divider position
 
         // Labels for file trees
-        JLabel uploadLabel = new JLabel("Upload Directory (Local Files)", JLabel.CENTER);
-        JLabel downloadLabel = new JLabel("Download Directory (Server Files)", JLabel.CENTER);
+        JLabel uploadLabel = new JLabel("Upload Directory", JLabel.CENTER);
+        JLabel downloadLabel = new JLabel("Download Directory", JLabel.CENTER);
 
         // Drag and drop Functionality//
         class FileTransferHandler extends TransferHandler {
@@ -282,6 +345,7 @@ public class FrontendUI extends JFrame {
         int year = Integer.parseInt(yearPart);
     
         if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2024 || year > 2025) {
+            //2024 is when the project started and 2025 is the current year
             return false;
         }
         
