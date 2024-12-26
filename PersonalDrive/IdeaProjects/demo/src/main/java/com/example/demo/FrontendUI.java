@@ -3,6 +3,7 @@ package com.example.demo;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
@@ -202,9 +203,25 @@ public class FrontendUI extends JFrame {
             }
         });
 
+        String[] settings = {"📂", "Log Out"};
+        JComboBox<String> settingsComboBox = new JComboBox<>(settings);
+
+        settingsComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (settingsComboBox.getSelectedItem().equals("Log Out")) {
+                    dispose();
+                    LoginUI reinitiate = new LoginUI();
+                    reinitiate.setLocationRelativeTo(null);
+                    reinitiate.setVisible(true);
+                } else {}
+            }
+        });
+
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
         searchPanel.add(sortComboBox);
+        searchPanel.add(settingsComboBox);
 
         // searchButton.addActionListener(e -> {
         //     String query = searchField.getText().trim();
