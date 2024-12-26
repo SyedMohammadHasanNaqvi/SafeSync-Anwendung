@@ -570,6 +570,7 @@ public class FrontendUI extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             FrontendUI frontendUI = new FrontendUI();
+            frontendUI.setLocationRelativeTo(null);
             frontendUI.setVisible(true);
         });
     }

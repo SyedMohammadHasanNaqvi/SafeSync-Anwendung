@@ -52,6 +52,7 @@ public class LoginUI extends JFrame{
                 dispose();
 
                 FrontendUI neuesFenster = new FrontendUI();
+                neuesFenster.setLocationRelativeTo(null);
                 neuesFenster.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(LoginUI.this, "Invalid username or password");
@@ -80,6 +81,7 @@ public class LoginUI extends JFrame{
         public static void main(String[] args) {
             SwingUtilities.invokeLater(() -> {
                 LoginUI loginUI = new LoginUI();
+                loginUI.setLocationRelativeTo(null);
                 loginUI.setVisible(true);
             });
     }
