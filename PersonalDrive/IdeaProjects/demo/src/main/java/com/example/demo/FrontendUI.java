@@ -61,9 +61,11 @@ public class FrontendUI extends JFrame {
         JPanel searchSubPanel = new JPanel(new BorderLayout());
         JLabel iconLabel = new JLabel("\uD83D\uDD0D");
         iconLabel.setFont(new Font("", Font.PLAIN, 18));
+        iconLabel.setBorder(BorderFactory.createEmptyBorder(-5, 0, 0,0));
         searchPanel.add(iconLabel, BorderLayout.WEST);
         // searchSubPanel.add(new JLabel("\uD83D\uDD0D  "), BorderLayout.WEST);
-        JTextField searchField = new JTextField(15);
+        JTextField searchField = new JTextField();
+        searchField.setPreferredSize(new Dimension(200, 25));
         searchField.setText("Search");
         searchSubPanel.add(searchField, BorderLayout.CENTER);
         // JButton searchButton = new JButton("Search");
@@ -78,7 +80,7 @@ public class FrontendUI extends JFrame {
         JPanel dateSubPanel = new JPanel(new BorderLayout());
         // dateSubPanel.add(askDate, BorderLayout.WEST);
         JTextField dateField = new JTextField(10);
-        dateField.setText("DD-MM-YYYY");
+        dateField.setText("    DD-MM-YYYY");
         dateSubPanel.add(dateField, BorderLayout.CENTER);
         JButton dateButton = new JButton("Apply");
         dateSubPanel.add(dateButton, BorderLayout.EAST);
@@ -102,7 +104,7 @@ public class FrontendUI extends JFrame {
         dateField.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-             if (dateField.getText().equals("DD-MM-YYYY")) {
+             if (dateField.getText().equals("    DD-MM-YYYY")) {
                  dateField.setText("");
              }
             } 
@@ -110,7 +112,7 @@ public class FrontendUI extends JFrame {
             @Override
             public void focusLost(FocusEvent e) {
              if (dateField.getText().isEmpty()) {
-                 dateField.setText(("DD-MM-YYYY"));
+                 dateField.setText(("    DD-MM-YYYY"));
              }
             }
          });
@@ -123,9 +125,11 @@ public class FrontendUI extends JFrame {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 String searchText = searchField.getText().trim();
-                
+                if (searchText.equals("Search")) {
+                    applyDefaultFilter();
+                } else {
                 performSearch(searchText);}
-            
+            }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
@@ -154,7 +158,7 @@ public class FrontendUI extends JFrame {
                     });
                 }
 
-                if (dateText.isEmpty() || dateText.equals("DD-MM-YYYY")) {
+                if (dateText.isEmpty() || dateText.equals("    DD-MM-YYYY")) {
                     applyDefaultFilter();
                     dateField.setBackground(Color.WHITE);
                 } else if (validDate(dateText)) {
@@ -167,7 +171,7 @@ public class FrontendUI extends JFrame {
              @Override
             public void removeUpdate(DocumentEvent e) {
                 String dateText = dateField.getText();
-                if (dateText.isEmpty() || dateText.equals("DD-MM-YYYY")) {
+                if (dateText.isEmpty() || dateText.equals("    DD-MM-YYYY")) {
                     applyDefaultFilter();
                     dateField.setBackground(Color.WHITE);
                 } else if (validDate(dateText)) {
