@@ -203,7 +203,7 @@ public class FrontendUI extends JFrame {
             }
         });
 
-        String[] settings = {"📂", "Log Out"};
+        String[] settings = {"      📂", "Log Out"};
         JComboBox<String> settingsComboBox = new JComboBox<>(settings);
 
         settingsComboBox.addActionListener(new ActionListener() {
