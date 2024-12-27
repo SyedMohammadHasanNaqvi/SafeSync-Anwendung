@@ -1,8 +1,10 @@
 package com.example.demo;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
@@ -10,6 +12,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -42,6 +45,9 @@ public class FrontendUI extends JFrame {
     private JButton uploadButton;
     private JButton downloadButton;
     private JTextField dateField;
+    JPanel uploadPanel = new JPanel(new BorderLayout());
+    JPanel downloadPanel = new JPanel(new BorderLayout());
+    String path = "D:\\University\\Software Engineering\\PATH";
     // private JSlider sizeSlider;
     // private JLabel sizeRangeLabel;
 
@@ -197,10 +203,12 @@ public class FrontendUI extends JFrame {
                 }
             }
         });
-
+        String[] viewTypes = {"Tree View","List View","Grid View"};
+        JComboBox<String> fileViewsComboBox = new JComboBox<>(viewTypes);
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
         searchPanel.add(sortComboBox);
+        searchPanel.add(fileViewsComboBox);
 
         // searchButton.addActionListener(e -> {
         //     String query = searchField.getText().trim();
@@ -242,11 +250,12 @@ public class FrontendUI extends JFrame {
         // File Trees
         uploadRoot = new DefaultMutableTreeNode("Uploaded Files");
         uploadFileTree = new JTree(uploadRoot);
-        JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
+        
 
         downloadRoot = new DefaultMutableTreeNode("Downloadable Files");
         downloadFileTree = new JTree(downloadRoot);
-        JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
+        
+        
 
         // Buttons
         uploadButton = new JButton("Upload");
@@ -254,6 +263,56 @@ public class FrontendUI extends JFrame {
 
         uploadButton.addActionListener(this::uploadFile);
         downloadButton.addActionListener(this::downloadFile);
+
+        fileViewsComboBox.addActionListener(new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedView = fileViewsComboBox.getSelectedItem().toString();
+                if (selectedView.equals("Tree View")) {
+                    JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
+                    JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
+                    uploadPanel.removeAll();
+                    downloadPanel.removeAll();
+                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+                    uploadPanel.revalidate();
+                    uploadPanel.repaint();
+                    downloadPanel.revalidate();
+                    downloadPanel.repaint();
+                }else if (selectedView.equals("List View")) {
+                    JScrollPane uploadTreeScroll = new JScrollPane(createListView(path));
+                    JScrollPane downloadTreeScroll = new JScrollPane(createListView(path));
+                    uploadPanel.removeAll();
+                    downloadPanel.removeAll();
+                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+                    uploadPanel.revalidate();
+                    uploadPanel.repaint();
+                    downloadPanel.revalidate();
+                    downloadPanel.repaint();
+                }
+                else {
+                    JScrollPane uploadTreeScroll = new JScrollPane(createGridView(path));
+                    JScrollPane downloadTreeScroll = new JScrollPane(createGridView(path));
+                    uploadPanel.removeAll();
+                    downloadPanel.removeAll();
+                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+                    uploadPanel.revalidate();
+                    uploadPanel.repaint();
+                    downloadPanel.revalidate();
+                    downloadPanel.repaint();
+                }
+            }
+            
+        });
+        JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
+        JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
+        uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+        downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+
+
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
@@ -280,7 +339,7 @@ public class FrontendUI extends JFrame {
                 if (!canImport(support)) {
                     return false;
                 }
-        
+
                 try {
                     // Get the files from the dropped data
                     java.util.List<File> files = (java.util.List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
@@ -297,15 +356,13 @@ public class FrontendUI extends JFrame {
         }
 
         // Upload Panel with label and tree
-        JPanel uploadPanel = new JPanel(new BorderLayout());
         uploadPanel.add(uploadLabel, BorderLayout.NORTH);
-        uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+        
         uploadPanel.setTransferHandler(new FileTransferHandler());
 
         // Download Panel with label and tree
-        JPanel downloadPanel = new JPanel(new BorderLayout());
         downloadPanel.add(downloadLabel, BorderLayout.NORTH);
-        downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+        
 
         // Add both panels to the split pane
         splitPane.setLeftComponent(uploadPanel);
@@ -320,8 +377,8 @@ public class FrontendUI extends JFrame {
         revalidate();
         repaint();
 
-        loadLocalFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));  // Load current local directory
-        loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\")); // Load server-side file structure (dummy data here)
+        loadLocalFileSystem(new File(path));  // Load current local directory
+        loadServerFileSystem(new File(path)); // Load server-side file structure (dummy data here)
     }
 
     // private void updateSizeLabel() {
@@ -354,8 +411,8 @@ public class FrontendUI extends JFrame {
 
 
     private void applyDefaultFilter() {
-        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String uploadDir = path;
+        String downloadDir = path;
     
         SearchService searchService = new SearchService();
     
@@ -373,8 +430,8 @@ public class FrontendUI extends JFrame {
 
     // private void performSizeFilter() {
     //     int maxSize = sizeSlider.getValue();
-    //     String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-    //     String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    //     String uploadDir = path;
+    //     String downloadDir = path;
 
     //     SearchService searchService = new SearchService();
     //     List<List<File>> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
@@ -387,8 +444,8 @@ public class FrontendUI extends JFrame {
     //}
 
     private void sortFilesBySize(boolean largestFirst) {
-    String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-    String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    String uploadDir = path;
+    String downloadDir = path;
 
     SearchService searchService = new SearchService();
     List<List<File>> sortedFiles = searchService.sortFilesBySize(uploadDir, downloadDir, largestFirst);
@@ -401,8 +458,8 @@ public class FrontendUI extends JFrame {
 }
 
     private void applyDate(String dateString) {
-        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String uploadDir = path;
+        String downloadDir = path;
 
         SearchService searchService = new SearchService();
 
@@ -416,8 +473,8 @@ public class FrontendUI extends JFrame {
     }
 
     private void performSearch(String query) {
-        String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-        String downloadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+        String uploadDir = path;
+        String downloadDir = path;
 
         SearchService searchService = new SearchService();
 
@@ -516,8 +573,8 @@ public class FrontendUI extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "File upload failed: " + responseString, "Upload Error", JOptionPane.ERROR_MESSAGE);
             }
-            loadLocalFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));
-            loadServerFileSystem(new File("C:\\Users\\syedm\\Desktop\\SMHN\\"));
+            loadLocalFileSystem(new File(path));
+            loadServerFileSystem(new File(path));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Server not running", "Error", JOptionPane.ERROR_MESSAGE);
@@ -561,6 +618,130 @@ public class FrontendUI extends JFrame {
                 e.printStackTrace();
             }
         }
+    }
+
+    public JPanel createGridView(String path) {
+        JPanel gridPanel = new JPanel(new GridLayout(0, 4, 5, 5)); // 4 columns, adjustable rows
+
+        File dir = new File(path);
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        JPanel filePanel = createFilePanel(file,true);
+                        gridPanel.add(filePanel);
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid directory path!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return gridPanel;
+    }
+
+    public JPanel createListView(String path) {
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS)); // Stack vertically
+
+        File dir = new File(path);
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        JPanel filePanel = createFilePanel(file, false);
+                        
+                        listPanel.add(filePanel);
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid directory path!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return listPanel;
+    }
+
+    // private JPanel createFilePanel(File file) {
+    //     JPanel filePanel = new JPanel(new BorderLayout());
+    //     filePanel.setPreferredSize(new Dimension(130, 130));
+
+    //     JLabel thumbnailLabel = new JLabel();
+    //     thumbnailLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    //     thumbnailLabel.setVerticalAlignment(SwingConstants.CENTER);
+
+    //     try {
+    //         if (isImageFile(file)) {
+    //             BufferedImage img = ImageIO.read(file);
+    //             ImageIcon icon = new ImageIcon(img.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
+    //             thumbnailLabel.setIcon(icon);
+    //         } else {
+    //             Icon fileIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
+    //             thumbnailLabel.setIcon(fileIcon);
+    //         }
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+
+    //     JLabel nameLabel = new JLabel(file.getName());
+    //     nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+    //     filePanel.add(thumbnailLabel, BorderLayout.CENTER);
+    //     filePanel.add(nameLabel, BorderLayout.SOUTH);
+
+    //     return filePanel;
+    // }
+    private JPanel createFilePanel(File file, boolean isGridView) {
+        JPanel filePanel = new JPanel();
+        filePanel.setLayout(isGridView ? new BorderLayout() : new FlowLayout(FlowLayout.LEFT));
+        filePanel.setPreferredSize(isGridView ? new Dimension(150, 150) : new Dimension(600, 80));
+
+        JLabel thumbnailLabel = new JLabel();
+        thumbnailLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        thumbnailLabel.setPreferredSize(isGridView ? new Dimension(100, 100) : new Dimension(25, 25));
+
+        try {
+            if (isImageFile(file)) {
+                BufferedImage img = ImageIO.read(file);
+                ImageIcon icon = new ImageIcon(img.getScaledInstance(
+                    isGridView ? 100 : 60,
+                    isGridView ? 100 : 60,
+                    Image.SCALE_SMOOTH
+                ));
+                thumbnailLabel.setIcon(icon);
+            } else {
+                Icon fileIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
+                thumbnailLabel.setIcon(fileIcon);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        JLabel nameLabel = new JLabel(file.getName());
+        nameLabel.setHorizontalAlignment(isGridView ? SwingConstants.CENTER : SwingConstants.LEFT);
+
+        if (isGridView) {
+            filePanel.add(thumbnailLabel, BorderLayout.CENTER);
+            filePanel.add(nameLabel, BorderLayout.SOUTH);
+        } else {
+            filePanel.add(thumbnailLabel);
+            filePanel.add(nameLabel);
+        }
+
+        return filePanel;
+    }
+
+    private boolean isImageFile(File file) {
+        String[] imageExtensions = { "jpg", "jpeg", "png", "gif", "bmp" };
+        String fileName = file.getName().toLowerCase();
+        for (String ext : imageExtensions) {
+            if (fileName.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void main(String[] args) {
