@@ -55,7 +55,7 @@ public class Registration {
     // }
 
     public static boolean WriteUser(String username, String password) {
-        // Check if the user already exists
+        // Check if the user already exists    
         if (IsUserExist(username.toLowerCase().replaceAll("\\s", ""))) {
             System.out.println("This username: " + username + " is taken");
             return false;
