@@ -48,7 +48,7 @@ public class FrontendUI extends JFrame {
     private JTextField dateField;
     JPanel uploadPanel = new JPanel(new BorderLayout());
     JPanel downloadPanel = new JPanel(new BorderLayout());
-    String path = "D:\\University\\Software Engineering\\PATH";
+    String path = "C://Users//syedm//Desktop//SMHN/";
     // private JSlider sizeSlider;
     // private JLabel sizeRangeLabel;
 
@@ -643,7 +643,7 @@ public class FrontendUI extends JFrame {
 
     public JPanel createGridView(String path) {
         JPanel gridPanel = new JPanel(new GridLayout(0, 4, 5, 5)); // 4 columns, adjustable rows
-
+        
         File dir = new File(path);
         if (dir.exists() && dir.isDirectory()) {
             File[] files = dir.listFiles();
@@ -671,8 +671,8 @@ public class FrontendUI extends JFrame {
             File[] files = dir.listFiles();
             if (files != null) {
                 for (File file : files) {
+                    JPanel filePanel = createFilePanel(file, false);
                     if (file.isFile()) {
-                        JPanel filePanel = createFilePanel(file, false);
                         
                         listPanel.add(filePanel);
                     }
