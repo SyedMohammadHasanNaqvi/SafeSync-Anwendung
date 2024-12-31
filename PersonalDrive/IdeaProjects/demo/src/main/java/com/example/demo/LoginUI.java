@@ -85,8 +85,11 @@ public class LoginUI extends JFrame{
         public void actionPerformed(ActionEvent e) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-
-            if (loginService.gegenprufen(username, password)) {
+            if (usernameField.getText().isEmpty() || passwordField.getPassword().toString().isEmpty()) {
+                JOptionPane.showMessageDialog(LoginUI.this, "Please fill all the fields");
+                
+            }
+            else if (loginService.gegenprufen(username, password)) {
                 JOptionPane.showMessageDialog(LoginUI.this, "Login Successful!");
                 dispose();
 
@@ -106,8 +109,11 @@ public class LoginUI extends JFrame{
         public void actionPerformed(ActionEvent e) {
             String benutzername = usernameField.getText();
             String passwort = new String(passwordField.getPassword());
-            
-            if(Registration.WriteUser(benutzername, passwort)) {
+            if (usernameField.getText().isEmpty() || passwordField.getPassword().toString().isEmpty()) {
+                JOptionPane.showMessageDialog(LoginUI.this, "Please fill all the fields");
+                
+            }
+            else if(Registration.WriteUser(benutzername, passwort)) {
                 JOptionPane.showMessageDialog(LoginUI.this, "Successfully Registered");
             } else {
                 JOptionPane.showMessageDialog(LoginUI.this, "User already exists");
