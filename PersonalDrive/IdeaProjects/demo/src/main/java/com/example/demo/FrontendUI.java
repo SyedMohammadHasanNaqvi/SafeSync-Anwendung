@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.nio.file.Path;
+
 import javax.swing.tree.TreePath;
 import java.util.List;
 import java.text.SimpleDateFormat;
@@ -48,7 +50,9 @@ public class FrontendUI extends JFrame {
     private JTextField dateField;
     JPanel uploadPanel = new JPanel(new BorderLayout());
     JPanel downloadPanel = new JPanel(new BorderLayout());
-    String path = "D:\\University\\Software Engineering\\PATH";
+    String path = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    JComboBox<String> fileViewsComboBox;
+    JList<String> list;
     // private JSlider sizeSlider;
     // private JLabel sizeRangeLabel;
 
@@ -224,7 +228,7 @@ public class FrontendUI extends JFrame {
             }
         });
         String[] viewTypes = {"Tree View","List View","Grid View"};
-        JComboBox<String> fileViewsComboBox = new JComboBox<>(viewTypes);
+        fileViewsComboBox = new JComboBox<>(viewTypes);
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
         searchPanel.add(sortComboBox);
@@ -291,6 +295,7 @@ public class FrontendUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String selectedView = fileViewsComboBox.getSelectedItem().toString();
                 if (selectedView.equals("Tree View")) {
+                    System.out.println("Tree");
                     JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
                     JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
                     uploadPanel.removeAll();
@@ -301,23 +306,18 @@ public class FrontendUI extends JFrame {
                     uploadPanel.repaint();
                     downloadPanel.revalidate();
                     downloadPanel.repaint();
-                }else if (selectedView.equals("List View")) {
+                } else if (selectedView.equals("List View")) {
+                    System.out.println("List");
                     SearchService searchService = new SearchService();
-                    List<List<File>> sortedFiles = searchService.sortFilesBySize(path, path, true);
-                    List<File> sortedUploadFiles = sortedFiles.get(0);
-                    List<File> sortedDownloadFiles = sortedFiles.get(1);
-                    JScrollPane uploadTreeScroll = new JScrollPane(createListView(sortedUploadFiles));
-                    JScrollPane downloadTreeScroll = new JScrollPane(createListView(sortedDownloadFiles));
-                    uploadPanel.removeAll();
-                    downloadPanel.removeAll();
-                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
-                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-                    uploadPanel.revalidate();
-                    uploadPanel.repaint();
-                    downloadPanel.revalidate();
-                    downloadPanel.repaint();
-                }
-                else {
+                    List<List<File>> sortedFiles = searchService.searchFiles("", path, path);
+                    // List<File> sortedUploadFiles = sortedFiles.get(0);
+                    // List<File> sortedDownloadFiles = sortedFiles.get(1);
+                    // JScrollPane uploadTreeScroll = new JScrollPane(createListView(sortedUploadFiles));
+                    // JScrollPane downloadTreeScroll = new JScrollPane(createListView(sortedDownloadFiles));
+                    createView(sortedFiles.get(1), downloadPanel);
+                    createView(sortedFiles.get(0), uploadPanel);
+                } else {
+                    System.out.println("Else");
                     JScrollPane uploadTreeScroll = new JScrollPane(createGridView(path));
                     JScrollPane downloadTreeScroll = new JScrollPane(createGridView(path));
                     uploadPanel.removeAll();
@@ -411,6 +411,17 @@ public class FrontendUI extends JFrame {
     //     sizeRangeLabel.setText("File Size: 0KB - " + maxSizeKB + "KB");
     // }
 
+    private void createView(List<File> isspyaarkokyanaamdou, JPanel panel) {
+        panel.removeAll();
+        // downloadPanel.removeAll();
+        panel.add(createListView(isspyaarkokyanaamdou), BorderLayout.CENTER);
+        // downloadPanel.add(createListView(isspyaarkokyanaamdou.get(1)), BorderLayout.CENTER);
+        panel.revalidate();
+        panel.repaint();
+        // downloadPanel.revalidate();
+        // downloadPanel.repaint();
+    }
+
     private boolean validDate(String date) {
         String regex = "^\\d{2}-\\d{2}-\\d{4}$";
     
@@ -440,8 +451,6 @@ public class FrontendUI extends JFrame {
         String downloadDir = path;
     
         SearchService searchService = new SearchService();
-    
-        // Get all files without any filtering
         List<List<File>> searchResults = searchService.searchFiles("", uploadDir, downloadDir);
     
         List<File> allUploadFiles = searchResults.get(0);
@@ -450,6 +459,11 @@ public class FrontendUI extends JFrame {
         // Update the trees with all the files
         updateFileTree(allUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(allDownloadFiles, downloadRoot, downloadFileTree);
+
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+            createView(allUploadFiles, uploadPanel);
+            createView(allDownloadFiles, downloadPanel);
+        }
     }
 
 
@@ -480,7 +494,11 @@ public class FrontendUI extends JFrame {
 
     updateFileTree(sortedUploadFiles, uploadRoot, uploadFileTree);
     updateFileTree(sortedDownloadFiles, downloadRoot, downloadFileTree);
-}
+
+    if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+    createView(sortedUploadFiles, uploadPanel);
+    createView(sortedDownloadFiles, downloadPanel);}
+    }
 
     private void applyDate(String dateString) {
         String uploadDir = path;
@@ -495,6 +513,10 @@ public class FrontendUI extends JFrame {
 
         updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+        createView(filteredUploadFiles, uploadPanel);
+        createView(filteredDownloadFiles, downloadPanel);}
     }
 
     private void performSearch(String query) {
@@ -510,6 +532,10 @@ public class FrontendUI extends JFrame {
 
         updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+        createView(filteredUploadFiles, uploadPanel);
+        createView(filteredDownloadFiles, downloadPanel);}
     }
 
     public void updateFileTree(List<File> files, DefaultMutableTreeNode root, JTree tree) {
@@ -611,12 +637,28 @@ public class FrontendUI extends JFrame {
         // !!! Make sure that you can download your desired files
 
         TreePath selectedPath = downloadFileTree.getSelectionPath();
-        if (selectedPath == null) {
+
+        String encodedFileName="";
+        String selectedFile = "";
+
+        if(fileViewsComboBox.getSelectedItem().toString().equals("Tree View")){
+            selectedFile = selectedPath.getLastPathComponent().toString();
+            System.out.println(selectedFile);
+        }
+        else if(fileViewsComboBox.getSelectedItem().toString().equals("List View")){
+            selectedFile = list.getSelectedValue();
+            System.out.println(list.getSelectedValue());
+        }
+        else {
+            System.out.println("test");
+            // do something
+        }
+
+        if (selectedFile == null) {
             JOptionPane.showMessageDialog(this, "Please select a file to download.");
             return;
         }
-        String encodedFileName="";
-        String selectedFile = selectedPath.getLastPathComponent().toString();
+
         try {
             encodedFileName = URLEncoder.encode(selectedFile, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -665,39 +707,45 @@ public class FrontendUI extends JFrame {
 
         return gridPanel;
     }
+
     public JPanel createListView(List<File> files) {
         JPanel listPanel = new JPanel();
         
+        DefaultListModel<String> l1 = new DefaultListModel<>();
         for (File file : files) {
-            JButton btn = new JButton(file.getName());
-            listPanel.add(btn);
+            l1.addElement(file.getName());
         }
+
+        list = new JList<>(l1);
+        list.setBounds(0,0,400, 400);
+        listPanel.setLayout(null);
+        listPanel.add(list);
 
         return listPanel;
     }
 
-    public JPanel createListView(String path) {
-        JPanel listPanel = new JPanel();
-        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS)); // Stack vertically
+    // public JPanel createListView(String path) {
+    //     JPanel listPanel = new JPanel();
+    //     listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS)); // Stack vertically
         
-        File dir = new File(path);
-        if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    JPanel filePanel = createFilePanel(file, false);
-                    if (file.isFile()) {
+    //     File dir = new File(path);
+    //     if (dir.exists() && dir.isDirectory()) {
+    //         File[] files = dir.listFiles();
+    //         if (files != null) {
+    //             for (File file : files) {
+    //                 JPanel filePanel = createFilePanel(file, false);
+    //                 if (file.isFile()) {
                         
-                        listPanel.add(filePanel);
-                    }
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "Invalid directory path!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    //                     listPanel.add(filePanel);
+    //                 }
+    //             }
+    //         }
+    //     } else {
+    //         JOptionPane.showMessageDialog(null, "Invalid directory path!", "Error", JOptionPane.ERROR_MESSAGE);
+    //     }
 
-        return listPanel;
-    }
+    //     return listPanel;
+    // }
 
     // private JPanel createFilePanel(File file) {
     //     JPanel filePanel = new JPanel(new BorderLayout());
