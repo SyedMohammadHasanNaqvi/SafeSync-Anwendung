@@ -28,7 +28,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.FileEntity;
+// import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -302,8 +302,12 @@ public class FrontendUI extends JFrame {
                     downloadPanel.revalidate();
                     downloadPanel.repaint();
                 }else if (selectedView.equals("List View")) {
-                    JScrollPane uploadTreeScroll = new JScrollPane(createListView(path));
-                    JScrollPane downloadTreeScroll = new JScrollPane(createListView(path));
+                    SearchService searchService = new SearchService();
+                    List<List<File>> sortedFiles = searchService.sortFilesBySize(path, path, true);
+                    List<File> sortedUploadFiles = sortedFiles.get(0);
+                    List<File> sortedDownloadFiles = sortedFiles.get(1);
+                    JScrollPane uploadTreeScroll = new JScrollPane(createListView(sortedUploadFiles));
+                    JScrollPane downloadTreeScroll = new JScrollPane(createListView(sortedDownloadFiles));
                     uploadPanel.removeAll();
                     downloadPanel.removeAll();
                     uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
@@ -660,6 +664,16 @@ public class FrontendUI extends JFrame {
         }
 
         return gridPanel;
+    }
+    public JPanel createListView(List<File> files) {
+        JPanel listPanel = new JPanel();
+        
+        for (File file : files) {
+            JButton btn = new JButton(file.getName());
+            listPanel.add(btn);
+        }
+
+        return listPanel;
     }
 
     public JPanel createListView(String path) {
