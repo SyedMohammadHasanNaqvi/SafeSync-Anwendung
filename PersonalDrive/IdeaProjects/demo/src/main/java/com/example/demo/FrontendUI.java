@@ -391,7 +391,7 @@ public class FrontendUI extends JFrame {
         int month = Integer.parseInt(monthPart);
         int year = Integer.parseInt(yearPart);
     
-        if (day < 1 || day > 31 || month < 1 || month > 12 || year < 2024 || year > 2025) {
+        if (day < 1 || day > 31 || day > 29 && month == 02 || month < 1 || month > 12 || year < 2024 || year > 2025) {
             //2024 is when the project started and 2025 is the current year
             return false;
         }
