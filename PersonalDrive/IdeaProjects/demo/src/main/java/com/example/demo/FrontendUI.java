@@ -49,6 +49,10 @@ public class FrontendUI extends JFrame {
     JPanel uploadPanel = new JPanel(new BorderLayout());
     JPanel downloadPanel = new JPanel(new BorderLayout());
     String path = "D:\\University\\Software Engineering\\PATH";
+    JScrollPane uploadTreeScroll;
+    JScrollPane downloadTreeScroll;
+    String[] viewTypes = {"Tree View","List View","Grid View"};
+    JComboBox<String> fileViewsComboBox = new JComboBox<>(viewTypes);
     // private JSlider sizeSlider;
     // private JLabel sizeRangeLabel;
 
@@ -223,8 +227,7 @@ public class FrontendUI extends JFrame {
                 } else {}
             }
         });
-        String[] viewTypes = {"Tree View","List View","Grid View"};
-        JComboBox<String> fileViewsComboBox = new JComboBox<>(viewTypes);
+        
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
         searchPanel.add(sortComboBox);
@@ -290,46 +293,12 @@ public class FrontendUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedView = fileViewsComboBox.getSelectedItem().toString();
-                if (selectedView.equals("Tree View")) {
-                    JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
-                    JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
-                    uploadPanel.removeAll();
-                    downloadPanel.removeAll();
-                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
-                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-                    uploadPanel.revalidate();
-                    uploadPanel.repaint();
-                    downloadPanel.revalidate();
-                    downloadPanel.repaint();
-                }else if (selectedView.equals("List View")) {
-                    JScrollPane uploadTreeScroll = new JScrollPane(createListView(path));
-                    JScrollPane downloadTreeScroll = new JScrollPane(createListView(path));
-                    uploadPanel.removeAll();
-                    downloadPanel.removeAll();
-                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
-                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-                    uploadPanel.revalidate();
-                    uploadPanel.repaint();
-                    downloadPanel.revalidate();
-                    downloadPanel.repaint();
-                }
-                else {
-                    JScrollPane uploadTreeScroll = new JScrollPane(createGridView(path));
-                    JScrollPane downloadTreeScroll = new JScrollPane(createGridView(path));
-                    uploadPanel.removeAll();
-                    downloadPanel.removeAll();
-                    uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
-                    downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-                    uploadPanel.revalidate();
-                    uploadPanel.repaint();
-                    downloadPanel.revalidate();
-                    downloadPanel.repaint();
-                }
+                updateviews(selectedView);
             }
             
         });
-        JScrollPane uploadTreeScroll = new JScrollPane(uploadFileTree);
-        JScrollPane downloadTreeScroll = new JScrollPane(downloadFileTree);
+        uploadTreeScroll = new JScrollPane(uploadFileTree);
+        downloadTreeScroll = new JScrollPane(downloadFileTree);
         uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
         downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
 
@@ -523,21 +492,34 @@ public class FrontendUI extends JFrame {
 
     // Load local file system structure
     private void loadLocalFileSystem(File dir) {
+        if (fileViewsComboBox.getSelectedItem().toString().equals("Tree View")) {
         DefaultTreeModel model = (DefaultTreeModel) uploadFileTree.getModel();
         uploadRoot.removeAllChildren();
         addFilesToNode(dir, uploadRoot);
+        
         model.reload();
+        }
+        else{
+            updateviews(fileViewsComboBox.getSelectedItem().toString());
+        }
     }
 
     // Load server-side file structure (this can be populated via an HTTP request in a real app)
     private void loadServerFileSystem(File dir) {
         // Dummy files for now; in a real application
         // !!! Change it so you get the structure from the server
+        if (fileViewsComboBox.getSelectedItem().toString().equals("Tree View")) {
         DefaultTreeModel model = (DefaultTreeModel) downloadFileTree.getModel();
         downloadRoot.removeAllChildren();
         addFilesToNode(dir, downloadRoot);
         
         model.reload();
+        }
+        else{
+            updateviews(fileViewsComboBox.getSelectedItem().toString());
+        }
+        
+        
     }
 
     private void addFilesToNode(File dir, DefaultMutableTreeNode node) {
@@ -658,13 +640,13 @@ public class FrontendUI extends JFrame {
         } else {
             JOptionPane.showMessageDialog(null, "Invalid directory path!", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
         return gridPanel;
     }
 
     public JPanel createListView(String path) {
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS)); // Stack vertically
+        // DefaultListModel<String> fileListModel = new DefaultListModel<>();
         
         File dir = new File(path);
         if (dir.exists() && dir.isDirectory()) {
@@ -673,7 +655,7 @@ public class FrontendUI extends JFrame {
                 for (File file : files) {
                     JPanel filePanel = createFilePanel(file, false);
                     if (file.isFile()) {
-                        
+                        // fileListModel.addElement(new File(path).getName());
                         listPanel.add(filePanel);
                     }
                 }
@@ -681,7 +663,6 @@ public class FrontendUI extends JFrame {
         } else {
             JOptionPane.showMessageDialog(null, "Invalid directory path!", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
         return listPanel;
     }
 
@@ -696,7 +677,7 @@ public class FrontendUI extends JFrame {
     //     try {
     //         if (isImageFile(file)) {
     //             BufferedImage img = ImageIO.read(file);
-    //             ImageIcon icon = new ImageIcon(img.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
+    //             ImageIcon icon = new ImageIcon(img.getScaledInstance(80, 80, Image.SCALE_SMOOTH));f
     //             thumbnailLabel.setIcon(icon);
     //         } else {
     //             Icon fileIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
@@ -763,6 +744,44 @@ public class FrontendUI extends JFrame {
             }
         }
         return false;
+    }
+
+    public void updateviews(String ViewType){
+        if (ViewType.equals("Tree View")) {
+            uploadTreeScroll = new JScrollPane(uploadFileTree);
+            downloadTreeScroll = new JScrollPane(downloadFileTree);
+            uploadPanel.removeAll();
+            downloadPanel.removeAll();
+            uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+            downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+            uploadPanel.revalidate();
+            uploadPanel.repaint();
+            downloadPanel.revalidate();
+            downloadPanel.repaint();
+        }else if (ViewType.equals("List View")) {
+            uploadTreeScroll = new JScrollPane(createListView(path));
+            downloadTreeScroll = new JScrollPane(createListView(path));
+            uploadPanel.removeAll();
+            downloadPanel.removeAll();
+            uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+            downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+            uploadPanel.revalidate();
+            uploadPanel.repaint();
+            downloadPanel.revalidate();
+            downloadPanel.repaint();
+        }
+        else {
+            uploadTreeScroll = new JScrollPane(createGridView(path));
+            downloadTreeScroll = new JScrollPane(createGridView(path));
+            uploadPanel.removeAll();
+            downloadPanel.removeAll();
+            uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+            downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
+            uploadPanel.revalidate();
+            uploadPanel.repaint();
+            downloadPanel.revalidate();
+            downloadPanel.repaint();
+        }
     }
 
     public static void main(String[] args) {
