@@ -57,7 +57,7 @@ public class FrontendUI extends JFrame {
     private String downloadUrl = "http://localhost:8080/download?file=";
 
     public FrontendUI() {
-        setTitle("Office Drive");
+        setTitle("SafeSync");
         setSize(800, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -228,8 +228,8 @@ public class FrontendUI extends JFrame {
         searchPanel.add(searchSubPanel);
         searchPanel.add(dateSubPanel);
         searchPanel.add(sortComboBox);
-        searchPanel.add(settingsComboBox);
         searchPanel.add(fileViewsComboBox);
+        searchPanel.add(settingsComboBox);
 
         // searchButton.addActionListener(e -> {
         //     String query = searchField.getText().trim();
@@ -465,18 +465,18 @@ public class FrontendUI extends JFrame {
     //}
 
     private void sortFilesBySize(boolean largestFirst) {
-    String uploadDir = path;
-    String downloadDir = path;
+        String uploadDir = path;
+        String downloadDir = path;
 
-    SearchService searchService = new SearchService();
-    List<List<File>> sortedFiles = searchService.sortFilesBySize(uploadDir, downloadDir, largestFirst);
+        SearchService searchService = new SearchService();
+        List<List<File>> sortedFiles = searchService.sortFilesBySize(uploadDir, downloadDir, largestFirst);
 
-    List<File> sortedUploadFiles = sortedFiles.get(0);
-    List<File> sortedDownloadFiles = sortedFiles.get(1);
+        List<File> sortedUploadFiles = sortedFiles.get(0);
+        List<File> sortedDownloadFiles = sortedFiles.get(1);
 
-    updateFileTree(sortedUploadFiles, uploadRoot, uploadFileTree);
-    updateFileTree(sortedDownloadFiles, downloadRoot, downloadFileTree);
-}
+        updateFileTree(sortedUploadFiles, uploadRoot, uploadFileTree);
+        updateFileTree(sortedDownloadFiles, downloadRoot, downloadFileTree); 
+    }
 
     private void applyDate(String dateString) {
         String uploadDir = path;
@@ -739,6 +739,7 @@ public class FrontendUI extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         JLabel nameLabel = new JLabel(file.getName());
         nameLabel.setHorizontalAlignment(isGridView ? SwingConstants.CENTER : SwingConstants.LEFT);
