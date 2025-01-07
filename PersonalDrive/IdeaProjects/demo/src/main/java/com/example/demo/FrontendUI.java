@@ -539,7 +539,7 @@ public class FrontendUI extends JFrame {
         // Dummy files for now; in a real application
         // !!! Change it so you get the structure from the server
         
-        if(fileViewsComboBox.getSelectedItem().toString().equals("Grid View")||fileViewsComboBox.getSelectedItem().toString().equals("Lists View")){
+        if(fileViewsComboBox.getSelectedItem().toString().equals("Grid View") || fileViewsComboBox.getSelectedItem().toString().equals("List View")){
             updateviews(fileViewsComboBox.getSelectedItem().toString());
         }
         DefaultTreeModel model = (DefaultTreeModel) downloadFileTree.getModel();
