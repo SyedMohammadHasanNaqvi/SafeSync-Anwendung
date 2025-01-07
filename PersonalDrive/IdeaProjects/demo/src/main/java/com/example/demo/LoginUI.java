@@ -102,16 +102,26 @@ public class LoginUI extends JFrame {
     private class RegisterActionLister implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String benutzername = usernameField.getText();
-            String passwort = new String(passwordField.getPassword());
-
-            if (Registration.WriteUser(benutzername, passwort)) {
-                JOptionPane.showMessageDialog(LoginUI.this, "Successfully Registered");
-            } else {
-                JOptionPane.showMessageDialog(LoginUI.this, "User already exists");
-            }
+            SwingUtilities.invokeLater(() -> {
+                RegistrationUI registrationUI = new RegistrationUI();
+                registrationUI.setVisible(true);
+            });
         }
-    }
+    }    
+
+    // private class RegisterActionLister implements ActionListener {
+    //     @Override
+    //     public void actionPerformed(ActionEvent e) {
+    //         String benutzername = usernameField.getText();
+    //         String passwort = new String(passwordField.getPassword());
+
+    //         if (Registration.WriteUser(benutzername, passwort)) {
+    //             JOptionPane.showMessageDialog(LoginUI.this, "Successfully Registered");
+    //         } else {
+    //             JOptionPane.showMessageDialog(LoginUI.this, "User already exists");
+    //         }
+    //     }
+    // }
 
 
         public static void main(String[] args) {
