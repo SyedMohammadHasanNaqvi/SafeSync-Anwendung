@@ -45,7 +45,7 @@ public class FrontendUI extends JFrame {
     JPanel downloadPanel = new JPanel(new BorderLayout());
     JPanel listPanel;
     JPanel gridPanel;
-    String path = "D:\\University\\Software Engineering\\PATH";
+    String path = "C:\\Users\\syedm\\Desktop\\SMHN\\";
     // JScrollPane uploadTreeScroll;
     JScrollPane downloadTreeScroll;
     String[] viewTypes = {"Tree View","List View","Grid View"};
