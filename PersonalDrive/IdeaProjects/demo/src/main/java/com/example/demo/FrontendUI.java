@@ -15,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -53,6 +55,8 @@ public class FrontendUI extends JFrame {
     JScrollPane downloadTreeScroll;
     String[] viewTypes = {"Tree View","List View","Grid View"};
     JComboBox<String> fileViewsComboBox = new JComboBox<>(viewTypes);
+    File selectedFileListnGrid = null;
+    private JPanel previousSelectedPanel = null; 
     // private JSlider sizeSlider;
     // private JLabel sizeRangeLabel;
 
@@ -587,14 +591,19 @@ public class FrontendUI extends JFrame {
     // Download file
     private void downloadFile(ActionEvent event) {
         // !!! Make sure that you can download your desired files
-
+        String selectedFile;
         TreePath selectedPath = downloadFileTree.getSelectionPath();
-        if (selectedPath == null) {
-            JOptionPane.showMessageDialog(this, "Please select a file to download.");
-            return;
-        }
+        
         String encodedFileName="";
-        String selectedFile = selectedPath.getLastPathComponent().toString();
+        if (fileViewsComboBox.getSelectedItem().toString().equals("Tree View")) {
+            if (selectedPath == null) {
+                JOptionPane.showMessageDialog(this, "Please select a file to download.");
+                return;
+            }
+            selectedFile = selectedPath.getLastPathComponent().toString();
+        }else {
+            selectedFile = selectedFileListnGrid.getName();
+        }
         try {
             encodedFileName = URLEncoder.encode(selectedFile, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -622,6 +631,8 @@ public class FrontendUI extends JFrame {
             }
         }
     }
+
+
 
     public JPanel createGridView(String path) {
         JPanel gridPanel = new JPanel(new GridLayout(0, 4, 5, 5)); // 4 columns, adjustable rows
@@ -666,35 +677,6 @@ public class FrontendUI extends JFrame {
         return listPanel;
     }
 
-    // private JPanel createFilePanel(File file) {
-    //     JPanel filePanel = new JPanel(new BorderLayout());
-    //     filePanel.setPreferredSize(new Dimension(130, 130));
-
-    //     JLabel thumbnailLabel = new JLabel();
-    //     thumbnailLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    //     thumbnailLabel.setVerticalAlignment(SwingConstants.CENTER);
-
-    //     try {
-    //         if (isImageFile(file)) {
-    //             BufferedImage img = ImageIO.read(file);
-    //             ImageIcon icon = new ImageIcon(img.getScaledInstance(80, 80, Image.SCALE_SMOOTH));f
-    //             thumbnailLabel.setIcon(icon);
-    //         } else {
-    //             Icon fileIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
-    //             thumbnailLabel.setIcon(fileIcon);
-    //         }
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-
-    //     JLabel nameLabel = new JLabel(file.getName());
-    //     nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-    //     filePanel.add(thumbnailLabel, BorderLayout.CENTER);
-    //     filePanel.add(nameLabel, BorderLayout.SOUTH);
-
-    //     return filePanel;
-    // }
     private JPanel createFilePanel(File file, boolean isGridView) {
         JPanel filePanel = new JPanel();
         filePanel.setLayout(isGridView ? new BorderLayout() : new FlowLayout(FlowLayout.LEFT));
@@ -732,6 +714,23 @@ public class FrontendUI extends JFrame {
             filePanel.add(thumbnailLabel);
             filePanel.add(nameLabel);
         }
+
+        filePanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                // Reset background of the previously selected panel
+                if (previousSelectedPanel != null) {
+                    previousSelectedPanel.setBackground(null);
+                }
+    
+                // Highlight the newly selected panel
+                filePanel.setBackground(Color.LIGHT_GRAY);
+    
+                // Update selected file and previous panel
+                selectedFileListnGrid = file;
+                previousSelectedPanel = filePanel;
+            }
+        });
 
         return filePanel;
     }
