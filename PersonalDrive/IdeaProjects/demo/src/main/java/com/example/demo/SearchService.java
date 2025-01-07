@@ -28,28 +28,28 @@ public class SearchService {
     }
 
     // Method to perform full search process
-    public List<List<File>> searchFiles (String query, String uploadDir, String downloadDir) {
-        List<File> uploadFiles = readFiles(uploadDir);
+    public List<File> searchFiles (String query, String downloadDir) {
+        // List<File> uploadFiles = readFiles(uploadDir);
         List<File> downloadFiles = readFiles(downloadDir);
 
-        List<File> filteredUploadFiles = filterFiles(query, uploadFiles);
+        // List<File> filteredUploadFiles = filterFiles(query, uploadFiles);
         List<File> filteredDownloadFiles = filterFiles(query, downloadFiles);
 
-        List<List<File>> result = new ArrayList<>();
-        result.add(filteredUploadFiles);
-        result.add(filteredDownloadFiles);
+        List<File> result = new ArrayList<>();
+        // result.add(filteredUploadFiles);
+        result = filteredDownloadFiles;
 
         return result;
     }
 
-    // public List<List<File>> searchFilesBySize(String uploadDir, String downloadDir, int maxSize) {
+    // public List<File> searchFilesBySize(String uploadDir, String downloadDir, int maxSize) {
     //     List<File> uploadFiles = readFiles(uploadDir);
     //     List<File> downloadFiles = readFiles(downloadDir);
 
     //     List<File> filteredUploadFiles = filterFilesBySize(uploadFiles, maxSize);
     //     List<File> filteredDownloadFiles = filterFilesBySize(downloadFiles, maxSize);
 
-    //     List<List<File>> result = new ArrayList<>();
+    //     List<File> result = new ArrayList<>();
     //     result.add(filteredUploadFiles);
     //     result.add(filteredDownloadFiles);
 
@@ -63,9 +63,9 @@ public class SearchService {
     // }
 
     // Method to sort files by size
-    public List<List<File>> sortFilesBySize(String uploadDir, String downloadDir, boolean largestFirst) {
+    public List<File> sortFilesBySize(String downloadDir, boolean largestFirst) {
         // Read files from the directories
-        List<File> uploadFiles = readFiles(uploadDir);
+        // List<File> uploadFiles = readFiles(uploadDir);
         List<File> downloadFiles = readFiles(downloadDir);
 
         // Sort files by size
@@ -75,33 +75,33 @@ public class SearchService {
         }
 
         // Sort the lists
-        List<File> sortedUploadFiles = uploadFiles.stream()
-                .sorted(sizeComparator)
-                .collect(Collectors.toList());
+        // List<File> sortedUploadFiles = uploadFiles.stream()
+        //         .sorted(sizeComparator)
+        //         .collect(Collectors.toList());
 
         List<File> sortedDownloadFiles = downloadFiles.stream()
                 .sorted(sizeComparator)
                 .collect(Collectors.toList());
 
         // Return the sorted lists
-        List<List<File>> result = new ArrayList<>();
-        result.add(sortedUploadFiles);
-        result.add(sortedDownloadFiles);
+        List<File> result = new ArrayList<>();
+        // result.add(sortedUploadFiles);
+        result = sortedDownloadFiles;
 
         return result;
     }
     
 
-    public List<List<File>> searchFilesByDate(String dateString, String uploadDir, String downloadDir) {
-        List<File> uploadFiles = readFiles(uploadDir);
+    public List<File> searchFilesByDate(String dateString, String downloadDir) {
+        // List<File> uploadFiles = readFiles(uploadDir);
         List<File> downloadFiles = readFiles(downloadDir);
 
-        List<File> filteredUploadFiles = filterFilesByDate(dateString, uploadFiles);
+        // List<File> filteredUploadFiles = filterFilesByDate(dateString, uploadFiles);
         List<File> filteredDownloadFiles = filterFilesByDate(dateString, downloadFiles);
 
-        List<List<File>> result = new ArrayList<>();
-        result.add(filteredUploadFiles);
-        result.add(filteredDownloadFiles);
+        List<File> result = new ArrayList<>();
+        // result.add(filteredUploadFiles);
+        result = filteredDownloadFiles;
 
         return result;
     }

@@ -1,10 +1,8 @@
 package com.example.demo;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -15,8 +13,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -25,12 +21,10 @@ import javax.swing.tree.TreePath;
 import java.util.List;
 import java.text.SimpleDateFormat;
 import java.awt.event.FocusEvent;
-
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -41,17 +35,18 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 
 public class FrontendUI extends JFrame {
 
-    private JTree uploadFileTree;
+    // private JTree uploadFileTree;
     private JTree downloadFileTree;
-    private DefaultMutableTreeNode uploadRoot;
+    // private DefaultMutableTreeNode uploadRoot;
     private DefaultMutableTreeNode downloadRoot;
     private JButton uploadButton;
     private JButton downloadButton;
-    private JTextField dateField;
-    JPanel uploadPanel = new JPanel(new BorderLayout());
+    // JPanel uploadPanel = new JPanel(new BorderLayout());
     JPanel downloadPanel = new JPanel(new BorderLayout());
-    String path = "C:\\Users\\syedm\\Desktop\\SMHN\\";
-    JScrollPane uploadTreeScroll;
+    JPanel listPanel;
+    JPanel gridPanel;
+    String path = "D:\\University\\Software Engineering\\PATH";
+    // JScrollPane uploadTreeScroll;
     JScrollPane downloadTreeScroll;
     String[] viewTypes = {"Tree View","List View","Grid View"};
     JComboBox<String> fileViewsComboBox = new JComboBox<>(viewTypes);
@@ -276,8 +271,8 @@ public class FrontendUI extends JFrame {
 
 
         // File Trees
-        uploadRoot = new DefaultMutableTreeNode("Uploaded Files");
-        uploadFileTree = new JTree(uploadRoot);
+        // uploadRoot = new DefaultMutableTreeNode("Uploaded Files");
+        // uploadFileTree = new JTree(uploadRoot);
         
 
         downloadRoot = new DefaultMutableTreeNode("Downloadable Files");
@@ -301,12 +296,11 @@ public class FrontendUI extends JFrame {
             }
             
         });
-        uploadTreeScroll = new JScrollPane(uploadFileTree);
+        
+        // uploadTreeScroll = new JScrollPane(uploadFileTree);
         downloadTreeScroll = new JScrollPane(downloadFileTree);
-        uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+        // uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
         downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-
-
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
@@ -314,11 +308,11 @@ public class FrontendUI extends JFrame {
         buttonPanel.add(downloadButton);
 
         // Split pane to hold both file trees (upload and download)
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(380);  // Initial divider position
+        // JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        // splitPane.setDividerLocation(380);  // Initial divider position
 
         // Labels for file trees
-        JLabel uploadLabel = new JLabel("Upload Directory", JLabel.CENTER);
+        // JLabel uploadLabel = new JLabel("Upload Directory", JLabel.CENTER);
         JLabel downloadLabel = new JLabel("Download Directory", JLabel.CENTER);
 
         // Drag and drop Functionality//
@@ -350,28 +344,28 @@ public class FrontendUI extends JFrame {
         }
 
         // Upload Panel with label and tree
-        uploadPanel.add(uploadLabel, BorderLayout.NORTH);
+        // uploadPanel.add(uploadLabel, BorderLayout.NORTH);
         
-        uploadPanel.setTransferHandler(new FileTransferHandler());
+        downloadPanel.setTransferHandler(new FileTransferHandler());
 
         // Download Panel with label and tree
         downloadPanel.add(downloadLabel, BorderLayout.NORTH);
         
 
         // Add both panels to the split pane
-        splitPane.setLeftComponent(uploadPanel);
-        splitPane.setRightComponent(downloadPanel);
+        // splitPane.setLeftComponent(uploadPanel);
+        // splitPane.setRightComponent(downloadPanel);
 
         // Main layout: SplitPane for file trees and buttons at the bottom
         getContentPane().add(searchPanel, BorderLayout.NORTH);
         // getContentPane().add(sizeFilterPanel, BorderLayout.WEST);
-        getContentPane().add(splitPane, BorderLayout.CENTER);
+        getContentPane().add(downloadPanel, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
         revalidate();
         repaint();
 
-        loadLocalFileSystem(new File(path));  // Load current local directory
+        // loadLocalFileSystem(new File(path));  // Load current local directory
         loadServerFileSystem(new File(path)); // Load server-side file structure (dummy data here)
     }
 
@@ -405,20 +399,28 @@ public class FrontendUI extends JFrame {
 
 
     private void applyDefaultFilter() {
-        String uploadDir = path;
+        // String uploadDir = path;
         String downloadDir = path;
     
         SearchService searchService = new SearchService();
     
         // Get all files without any filtering
-        List<List<File>> searchResults = searchService.searchFiles("", uploadDir, downloadDir);
+        List<File> searchResults = searchService.searchFiles("", downloadDir);
     
-        List<File> allUploadFiles = searchResults.get(0);
-        List<File> allDownloadFiles = searchResults.get(1);
+        // List<File> allUploadFiles = searchResults.get(0);
+        List<File> allDownloadFiles = searchResults;
     
         // Update the trees with all the files
-        updateFileTree(allUploadFiles, uploadRoot, uploadFileTree);
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+            updateListView(allDownloadFiles,listPanel,false);
+        }
+        else if (fileViewsComboBox.getSelectedItem().toString().equals("Grid View")) {
+            updateListView(allDownloadFiles,gridPanel,true);
+        }
+        else{
+        // updateFileTree(allUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(allDownloadFiles, downloadRoot, downloadFileTree);
+        }
     }
 
 
@@ -428,7 +430,7 @@ public class FrontendUI extends JFrame {
     //     String downloadDir = path;
 
     //     SearchService searchService = new SearchService();
-    //     List<List<File>> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
+    //     List<File> searchResults = searchService.searchFilesBySize(uploadDir, downloadDir, maxSize);
 
     //     List<File> filteredUploadFiles = searchResults.get(0);
     //     List<File> filteredDownloadFiles = searchResults.get(1);
@@ -442,13 +444,20 @@ public class FrontendUI extends JFrame {
         String downloadDir = path;
 
         SearchService searchService = new SearchService();
-        List<List<File>> sortedFiles = searchService.sortFilesBySize(uploadDir, downloadDir, largestFirst);
+        List<File> sortedFiles = searchService.sortFilesBySize(downloadDir, largestFirst);
 
-        List<File> sortedUploadFiles = sortedFiles.get(0);
-        List<File> sortedDownloadFiles = sortedFiles.get(1);
-
-        updateFileTree(sortedUploadFiles, uploadRoot, uploadFileTree);
+        // List<File> sortedUploadFiles = sortedFiles.get(0);
+        List<File> sortedDownloadFiles = sortedFiles;
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+            updateListView(sortedDownloadFiles,listPanel,false);
+        }
+        else if (fileViewsComboBox.getSelectedItem().toString().equals("Grid View")) {
+            updateListView(sortedDownloadFiles,gridPanel,true);
+        }
+        else{
+        // updateFileTree(sortedUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(sortedDownloadFiles, downloadRoot, downloadFileTree); 
+        }
     }
 
     private void applyDate(String dateString) {
@@ -457,13 +466,20 @@ public class FrontendUI extends JFrame {
 
         SearchService searchService = new SearchService();
 
-        List<List<File>> searchResults = searchService.searchFilesByDate(dateString, uploadDir, downloadDir);
+        List<File> searchResults = searchService.searchFilesByDate(dateString, downloadDir);
 
-        List<File> filteredUploadFiles = searchResults.get(0);
-        List<File> filteredDownloadFiles = searchResults.get(1);
-
-        updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
+        // List<File> filteredUploadFiles = searchResults.get(0);
+        List<File> filteredDownloadFiles = searchResults;
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+            updateListView(filteredDownloadFiles,listPanel,false);
+        }
+        else if (fileViewsComboBox.getSelectedItem().toString().equals("Grid View")) {
+            updateListView(filteredDownloadFiles,gridPanel,true);
+        }
+        else{
+        // updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+        }
     }
 
     private void performSearch(String query) {
@@ -472,13 +488,23 @@ public class FrontendUI extends JFrame {
 
         SearchService searchService = new SearchService();
 
-        List<List<File>> searchResults = searchService.searchFiles(query, uploadDir, downloadDir);
+        List<File> searchResults = searchService.searchFiles(query, downloadDir);
 
-        List<File> filteredUploadFiles = searchResults.get(0);
-        List<File> filteredDownloadFiles = searchResults.get(1);
+        // List<File> filteredUploadFiles = searchResults.get(0);
+        List<File> filteredDownloadFiles = searchResults;
 
-        updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
+        
+        if (fileViewsComboBox.getSelectedItem().toString().equals("List View")) {
+            updateListView(filteredDownloadFiles,listPanel,false);
+        }
+        else if (fileViewsComboBox.getSelectedItem().toString().equals("Grid View")) {
+            updateListView(filteredDownloadFiles,gridPanel,true);
+        }
+        else{
+        // updateFileTree(filteredUploadFiles, uploadRoot, uploadFileTree);
         updateFileTree(filteredDownloadFiles, downloadRoot, downloadFileTree);
+        }
+        
     }
 
     public void updateFileTree(List<File> files, DefaultMutableTreeNode root, JTree tree) {
@@ -495,34 +521,32 @@ public class FrontendUI extends JFrame {
     }
 
     // Load local file system structure
-    private void loadLocalFileSystem(File dir) {
-        if (fileViewsComboBox.getSelectedItem().toString().equals("Tree View")) {
-        DefaultTreeModel model = (DefaultTreeModel) uploadFileTree.getModel();
-        uploadRoot.removeAllChildren();
-        addFilesToNode(dir, uploadRoot);
+    // private void loadLocalFileSystem(File dir) {
+    //     if (fileViewsComboBox.getSelectedItem().toString().equals("Tree View")) {
+    //     DefaultTreeModel model = (DefaultTreeModel) uploadFileTree.getModel();
+    //     uploadRoot.removeAllChildren();
+    //     addFilesToNode(dir, uploadRoot);
         
-        model.reload();
-        }
-        else{
-            updateviews(fileViewsComboBox.getSelectedItem().toString());
-        }
-    }
+    //     model.reload();
+    //     }
+    //     else{
+    //         updateviews(fileViewsComboBox.getSelectedItem().toString());
+    //     }
+    // }
 
     // Load server-side file structure (this can be populated via an HTTP request in a real app)
     private void loadServerFileSystem(File dir) {
         // Dummy files for now; in a real application
         // !!! Change it so you get the structure from the server
-        if (fileViewsComboBox.getSelectedItem().toString().equals("Tree View")) {
+        
+        if(fileViewsComboBox.getSelectedItem().toString().equals("Grid View")||fileViewsComboBox.getSelectedItem().toString().equals("Lists View")){
+            updateviews(fileViewsComboBox.getSelectedItem().toString());
+        }
         DefaultTreeModel model = (DefaultTreeModel) downloadFileTree.getModel();
         downloadRoot.removeAllChildren();
         addFilesToNode(dir, downloadRoot);
         
         model.reload();
-        }
-        else{
-            updateviews(fileViewsComboBox.getSelectedItem().toString());
-        }
-        
         
     }
 
@@ -564,15 +588,8 @@ public class FrontendUI extends JFrame {
 
         // Execute the request
         CloseableHttpResponse response = client.execute(uploadFile);
-            
-
             //!!! change the content type based on the file types your application should support (i.e. PDF, JPG, etc.)
-            // FileEntity fileEntity = new FileEntity(selectedFile, ContentType.IMAGE_PNG);
-
             // till here
-
-            // uploadFile.setEntity(fileEntity);
-            // CloseableHttpResponse response = client.execute(uploadFile);
             HttpEntity responseEntity = response.getEntity();
             String responseString = EntityUtils.toString(responseEntity);
             if (response.getCode() == 200) {
@@ -580,7 +597,7 @@ public class FrontendUI extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "File upload failed: " + responseString, "Upload Error", JOptionPane.ERROR_MESSAGE);
             }
-            loadLocalFileSystem(new File(path));
+            // loadLocalFileSystem(new File(path));
             loadServerFileSystem(new File(path));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -635,7 +652,7 @@ public class FrontendUI extends JFrame {
 
 
     public JPanel createGridView(String path) {
-        JPanel gridPanel = new JPanel(new GridLayout(0, 4, 5, 5)); // 4 columns, adjustable rows
+        gridPanel = new JPanel(new GridLayout(0, 4, 5, 5)); // 4 columns, adjustable rows
         
         File dir = new File(path);
         if (dir.exists() && dir.isDirectory()) {
@@ -655,7 +672,7 @@ public class FrontendUI extends JFrame {
     }
 
     public JPanel createListView(String path) {
-        JPanel listPanel = new JPanel();
+        listPanel=new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS)); // Stack vertically
         // DefaultListModel<String> fileListModel = new DefaultListModel<>();
         
@@ -748,41 +765,54 @@ public class FrontendUI extends JFrame {
 
     public void updateviews(String ViewType){
         if (ViewType.equals("Tree View")) {
-            uploadTreeScroll = new JScrollPane(uploadFileTree);
+            // uploadTreeScroll = new JScrollPane(uploadFileTree);
             downloadTreeScroll = new JScrollPane(downloadFileTree);
-            uploadPanel.removeAll();
+            // uploadPanel.removeAll();
             downloadPanel.removeAll();
-            uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+            // uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
             downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-            uploadPanel.revalidate();
-            uploadPanel.repaint();
+            // uploadPanel.revalidate();
+            // uploadPanel.repaint();
             downloadPanel.revalidate();
             downloadPanel.repaint();
         }else if (ViewType.equals("List View")) {
-            uploadTreeScroll = new JScrollPane(createListView(path));
+            // uploadTreeScroll = new JScrollPane(createListView(path));
             downloadTreeScroll = new JScrollPane(createListView(path));
-            uploadPanel.removeAll();
+            // uploadPanel.removeAll();
             downloadPanel.removeAll();
-            uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+            // uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
             downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-            uploadPanel.revalidate();
-            uploadPanel.repaint();
+            // uploadPanel.revalidate();
+            // uploadPanel.repaint();
             downloadPanel.revalidate();
             downloadPanel.repaint();
         }
         else {
-            uploadTreeScroll = new JScrollPane(createGridView(path));
+            // uploadTreeScroll = new JScrollPane(createGridView(path));
             downloadTreeScroll = new JScrollPane(createGridView(path));
-            uploadPanel.removeAll();
+            // uploadPanel.removeAll();
             downloadPanel.removeAll();
-            uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
+            // uploadPanel.add(uploadTreeScroll, BorderLayout.CENTER);
             downloadPanel.add(downloadTreeScroll, BorderLayout.CENTER);
-            uploadPanel.revalidate();
-            uploadPanel.repaint();
+            // uploadPanel.revalidate();
+            // uploadPanel.repaint();
             downloadPanel.revalidate();
             downloadPanel.repaint();
         }
     }
+
+    private void updateListView(List<File> files, JPanel listPanel, boolean isGridView) {
+        listPanel.removeAll(); // Clear the existing contents
+
+        for (File file : files) {
+        JPanel filePanel = createFilePanel(file, isGridView);  //Use the createfilepanel method and add the filtered files in it.
+        listPanel.add(filePanel);
+        }
+    
+        listPanel.revalidate();
+        listPanel.repaint();
+    }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
