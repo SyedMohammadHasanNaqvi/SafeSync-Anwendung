@@ -9,13 +9,14 @@ import java.io.BufferedReader;
 
 
 public class LoginService {
-    private final File userFile;
+    private final File userFile;        // File to store the user credentials
 
+    // Constructor initializes the path to the user credentials file.
     public LoginService() {
         this.userFile = new File("C:/GitHub/Softwareentwicklung/user&pass.txt");
     }
 
-
+    // Checks if the provided username and password match an entry in the user file
     public boolean gegenprufen(String username, String password) {
         try (BufferedReader lesen = new BufferedReader(new FileReader(userFile))) {
             String line;
@@ -26,13 +27,14 @@ public class LoginService {
                 System.out.println("Error while hashing the input password.");
                 return false;
             }
-
+            
+            // Read each line in the file and compare username and password
             while ((line = lesen.readLine()) != null) {
                 String[] credentials = line.split(",");
 
                 if (credentials.length == 2) {
                     String benutzername = credentials[0];
-                    String passwort = credentials[1]; // This is the hashed password from the file
+                    String passwort = credentials[1];
 
                     // Compare username and hashed password
                     if (benutzername.equals(username.toLowerCase().replaceAll("\\s", "")) && passwort.equals(hashedInputPassword)) {
@@ -50,7 +52,7 @@ public class LoginService {
         return false;
     }
 
-
+    // Hashes the given password using SHA-256 and returns the hashed string
     public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

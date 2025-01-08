@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 
 public class Registration {
 
+    // Method to create the "user&pass.txt" file if it doesn't already exist
     public void CreateFile() {
         try {
             File geheimnis = new File("user&pass.txt");
@@ -24,7 +25,7 @@ public class Registration {
         }
     }
 
-
+    // Method to check if a user already exists in the file
     private static boolean IsUserExist(String username) {
         try (Scanner lesen = new Scanner (new File("user&pass.txt"))) {
             while (lesen.hasNextLine()) {
@@ -41,7 +42,7 @@ public class Registration {
         return false;
     }
 
-
+    // Method to write a new user to the file
     public static boolean WriteUser(String username, String password) {    
         if (IsUserExist(username.toLowerCase().replaceAll("\\s", ""))) {
             System.out.println("This username: " + username + " is taken");
@@ -65,7 +66,7 @@ public class Registration {
         }
     }
 
-
+    // Method to hash a password using SHA-256 algorithm.
     public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

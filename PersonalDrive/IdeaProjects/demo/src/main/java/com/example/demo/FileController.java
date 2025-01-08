@@ -19,45 +19,47 @@ import java.util.stream.Collectors;
 
 @RestController
 public class FileController {
-    private final String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";
+    private final String uploadDir = "C:\\Users\\syedm\\Desktop\\SMHN\\";   // Directory for file upload
 
-
+    // Checks if file exists in the upload directory
     public boolean fileExists(String fileName) {
         File file = new File(uploadDir, fileName);
         return file.exists();
     }
 
-
+    // Endpoints to upload a file
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        // Insert your code here
-        System.out.println("HELLOOOOOOOOOOOO" +file.getOriginalFilename());
+        // Print the uploaded file's name
+        System.out.println("HELLOOOOOOOOOOOO" + file.getOriginalFilename());
+
+        // Check if the file is empty or already exists
         if (file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("file is empty").toString();
 
         }
         else if (fileExists(file.getOriginalFilename())) {
             return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST).body("File already exists").toString();
-
-        }
-        try {
-            // Get the file and save it somewhere
+        } try {
+            // Save the uploaded file
             File uploadedFile = new File(uploadDir + file.getOriginalFilename());
             file.transferTo(uploadedFile);
 
             return ResponseEntity.status(HttpStatus.SC_OK).body("File uploaded successfully: " + file.getOriginalFilename()).toString();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
+            // Handle errors during file upload
             return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body("Failed to upload file").toString();
         }
     }
 
-
+    // Endpoint to download a file
     @GetMapping("/download")
     public byte[] downloadFile(@RequestParam String file) throws IOException {
-        System.out.println("naveen kumaer" + file);
+        // Print requested file name
+        System.out.println("Group 05" + file);
         
         if ( file!= "" ) {
+            // Check if the file exists and download it
             File dir = new File(uploadDir+file);
         if(dir.exists()){
             Resource resource = new UrlResource(dir.toURI());
@@ -65,6 +67,8 @@ public class FileController {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int bytesRead;
+
+            // Read the file content and write to output steam
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
@@ -72,13 +76,13 @@ public class FileController {
         } 
         
         } else {
-            throw new IOException("File not found");
+            throw new IOException("File not found");    // File not found error
         }
-                return null;
+                return null;    // Return null if file doesn't exist
         
     }
     
-
+    // Endpoints to list all files
     @GetMapping("/files")
     public java.util.List<String> listFiles() throws IOException {
         return null;
