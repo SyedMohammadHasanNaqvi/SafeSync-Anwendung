@@ -1,8 +1,10 @@
 package com.example.demo;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 
 public class LoginUI extends JFrame {
     private JTextField usernameField;
@@ -13,17 +15,15 @@ public class LoginUI extends JFrame {
         loginService = new LoginService();
 
         setTitle("Login Page");
-        setSize(800, 500); // Reduced window size
+        setSize(800, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the window on the screen
+        setLocationRelativeTo(null);
 
-        
         JPanel headerPanel = new JPanel();
         JLabel headerLabel = new JLabel("Welcome to SafeSync", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 20));
         headerLabel.setForeground(new Color(60, 80, 180));
         headerPanel.add(headerLabel);
-
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(new Color(240, 240, 240));
@@ -33,10 +33,6 @@ public class LoginUI extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         mainPanel.setLayout(new GridBagLayout());
-        // GridBagConstraints gbc = new GridBagConstraints();
-        // gbc.insets = new Insets(10, 10, 10, 10); // Add padding between components
-
-        // Username label and field
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
@@ -48,7 +44,6 @@ public class LoginUI extends JFrame {
         usernameField.setPreferredSize(new Dimension(200, 25));
         mainPanel.add(usernameField, gbc);
 
-        // Password label and field
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
@@ -60,7 +55,6 @@ public class LoginUI extends JFrame {
         passwordField.setPreferredSize(new Dimension(200, 25));
         mainPanel.add(passwordField, gbc);
 
-        // Login button
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -68,17 +62,15 @@ public class LoginUI extends JFrame {
         loginButton.addActionListener(new LoginActionListener());
         mainPanel.add(loginButton, gbc);
 
-        // Register button
         gbc.gridx = 1;
         JButton registrationButton = new JButton("Register");
         registrationButton.addActionListener(new RegisterActionLister());
         mainPanel.add(registrationButton, gbc);
 
         add(headerPanel, BorderLayout.NORTH);
-
-        // Add the mainPanel to the center of the frame
         add(mainPanel, BorderLayout.CENTER);
     }
+
 
     private class LoginActionListener implements ActionListener {
         @Override
@@ -97,6 +89,7 @@ public class LoginUI extends JFrame {
             }
         }
     }
+    
 
     private class RegisterActionLister implements ActionListener {
         @Override
@@ -107,21 +100,6 @@ public class LoginUI extends JFrame {
             });
         }
     }    
-
-    // private class RegisterActionLister implements ActionListener {
-    //     @Override
-    //     public void actionPerformed(ActionEvent e) {
-    //         String benutzername = usernameField.getText();
-    //         String passwort = new String(passwordField.getPassword());
-
-    //         if (Registration.WriteUser(benutzername, passwort)) {
-    //             JOptionPane.showMessageDialog(LoginUI.this, "Successfully Registered");
-    //         } else {
-    //             JOptionPane.showMessageDialog(LoginUI.this, "User already exists");
-    //         }
-    //     }
-    // }
-
 
         public static void main(String[] args) {
             SwingUtilities.invokeLater(() -> {

@@ -7,10 +7,12 @@ import java.util.Scanner;
 import java.io.FileWriter;
 import java.security.MessageDigest;
 
+
 public class Registration {
+
     public void CreateFile() {
         try {
-            File geheimnis = new File("user&pass.txt");  //Path may be changed to desired location
+            File geheimnis = new File("user&pass.txt");
             if (geheimnis.createNewFile()) {
                 System.out.println("File created: " + geheimnis.getName());
             } else {
@@ -21,6 +23,7 @@ public class Registration {
             e.printStackTrace();
         }
     }
+
 
     private static boolean IsUserExist(String username) {
         try (Scanner lesen = new Scanner (new File("user&pass.txt"))) {
@@ -38,39 +41,22 @@ public class Registration {
         return false;
     }
 
-    // public static boolean WriteUser (String username, String password) {
-    //     if (IsUserExist(username.toLowerCase().replaceAll("\\s", ""))) {
-    //         System.out.println("This username: " + username + " is taken");
-    //         return false;
-    //     } else {
-    //     try (FileWriter schreiben = new FileWriter("user&pass.txt", true)) {
-    //         schreiben.write(username.toLowerCase().replaceAll("\\s", "") + "," + password + "\n");
-    //         return true;
-    //     } catch (IOException e) {
-    //         System.out.println("An error occured while writing to the file");
-    //         e.printStackTrace();
-    //         return false;
-    //     }
-    // }
-    // }
 
-    public static boolean WriteUser(String username, String password) {
-        // Check if the user already exists    
+    public static boolean WriteUser(String username, String password) {    
         if (IsUserExist(username.toLowerCase().replaceAll("\\s", ""))) {
             System.out.println("This username: " + username + " is taken");
             return false;
         } else {
             try (FileWriter schreiben = new FileWriter("user&pass.txt", true)) {
-                // Hash the password
                 String hashedPassword = hashPassword(password);
                 if (hashedPassword == null) {
                     System.out.println("An error occurred while hashing the password.");
                     return false;
                 }
 
-                // Write the username and hashed password to the file
                 schreiben.write(username.toLowerCase().replaceAll("\\s", "") + "," + hashedPassword + "\n");
                 return true;
+
             } catch (IOException e) {
                 System.out.println("An error occurred while writing to the file");
                 e.printStackTrace();
@@ -78,6 +64,7 @@ public class Registration {
             }
         }
     }
+
 
     public static String hashPassword(String password) {
         try {
@@ -95,12 +82,4 @@ public class Registration {
             return null;
         }
     }
-
-    // public static void main(String[] args) {
-    //     Registration reg = new Registration();
-    //     reg.CreateFile();
-    //     reg.WriteUser("smhn", "pass123");
-    //     reg.WriteUser("ali", "yoyo");
-    //     //reg.WriteUser("ubaid", "123");
-    // }
 }

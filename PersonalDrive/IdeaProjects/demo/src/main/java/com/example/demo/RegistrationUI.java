@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class RegistrationUI extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
@@ -13,14 +14,14 @@ public class RegistrationUI extends JFrame {
     public RegistrationUI() {
         setTitle("Registration Page");
         setSize(500, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only this window
-        setLocationRelativeTo(null); // Center the window on the screen
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Username label and field
+        
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
@@ -32,7 +33,6 @@ public class RegistrationUI extends JFrame {
         usernameField.setPreferredSize(new Dimension(200, 25));
         mainPanel.add(usernameField, gbc);
 
-        // Password label and field with eye icon
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
@@ -48,7 +48,6 @@ public class RegistrationUI extends JFrame {
         passwordPanel.add(togglePasswordButton, BorderLayout.EAST);
         mainPanel.add(passwordPanel, gbc);
 
-        // Confirm password label and field with eye icon
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
@@ -64,7 +63,6 @@ public class RegistrationUI extends JFrame {
         confirmPasswordPanel.add(toggleConfirmPasswordButton, BorderLayout.EAST);
         mainPanel.add(confirmPasswordPanel, gbc);
 
-        // Register button
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
@@ -76,23 +74,24 @@ public class RegistrationUI extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    // Utility method to create the toggle button
+
     private JButton createToggleButton(JPasswordField passwordField) {
-        JButton toggleButton = new JButton("👁"); // Unicode eye icon
+        JButton toggleButton = new JButton("👁");
         toggleButton.setPreferredSize(new Dimension(30, 30));
-        toggleButton.setFocusable(false); // Avoid focus on button
+        toggleButton.setFocusable(false);
         toggleButton.addActionListener(e -> {
             if (passwordField.getEchoChar() != '\u0000') {
-                passwordField.setEchoChar('\u0000'); // Show password
-                toggleButton.setText("🙈"); // Change to "hide" icon
+                passwordField.setEchoChar('\u0000');
+                toggleButton.setText("🙈");
             } else {
-                passwordField.setEchoChar('•'); // Hide password
-                toggleButton.setText("👁"); // Change to "show" icon
+                passwordField.setEchoChar('•');
+                toggleButton.setText("👁");
             }
         });
         
         return toggleButton;
     }
+
 
     private class RegisterActionListener implements ActionListener {
         @Override
@@ -119,7 +118,7 @@ public class RegistrationUI extends JFrame {
 
             if (Registration.WriteUser(username, password)) {
                 JOptionPane.showMessageDialog(RegistrationUI.this, "Successfully Registered");
-                dispose(); // Close the registration UI
+                dispose();
             } else {
                 JOptionPane.showMessageDialog(RegistrationUI.this, "User already exists", "Error", JOptionPane.ERROR_MESSAGE);
             }

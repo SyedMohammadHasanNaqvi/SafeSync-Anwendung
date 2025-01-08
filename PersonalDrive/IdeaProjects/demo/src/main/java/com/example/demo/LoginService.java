@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
+
 public class LoginService {
     private final File userFile;
 
@@ -14,30 +15,6 @@ public class LoginService {
         this.userFile = new File("C:/GitHub/Softwareentwicklung/user&pass.txt");
     }
 
-    // public boolean gegenprufen(String username, String password) {
-    //     try (BufferedReader lesen = new BufferedReader(new FileReader(userFile))) {
-    //         String line;
-    //         while ((line = lesen.readLine()) != null) {
-    //             String[] credentials = line.split(",");
-
-    //             if (credentials.length == 2) {
-    //                 String benutzername = credentials[0];
-    //                 String passwort = credentials[1];
-
-    //                 if (benutzername.equals(username.toLowerCase().replaceAll("\\s", "")) && passwort.equals(password)) {
-    //                     System.out.println("Username & Password are matched");
-    //                     return true;
-    //                 }
-    //             }
-    //         }
-    //         System.out.println("Username & Password aren't matched");
-
-    //     } catch (IOException e) {
-    //             System.out.println("An error occured while reading the user&pass.txt: " + e.getMessage());
-    //         }
-
-    //         return false;
-    //     }
 
     public boolean gegenprufen(String username, String password) {
         try (BufferedReader lesen = new BufferedReader(new FileReader(userFile))) {
@@ -73,7 +50,8 @@ public class LoginService {
         return false;
     }
 
-        public static String hashPassword(String password) {
+
+    public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(password.getBytes());
@@ -89,9 +67,4 @@ public class LoginService {
             return null;
         }
     }
-
-        // public static void main (String[] args) {
-        // LoginService ls = new LoginService();
-        // ls.gegenprufen("smhn", "123");
-        // }
-    }
+}
