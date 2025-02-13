@@ -18,9 +18,9 @@ SafeSync ist eine sichere Dateiverwaltungsanwendung, die in Java entwickelt wurd
 - **Datenbankintegration:** Wechsel von dateibasierter Speicherung zu MySQL für mehr Effizienz und Skalierbarkeit.
 
 ## Installation
-1) Repository klonen:
+1) **Repository klonen:**
    git clone https://github.com/SyedMohammadHasanNaqvi/SafeSync-Anwendung
-2) In das Projektverzeichnis wechseln:
+2) **In das Projektverzeichnis wechseln:**
    cd SafeSync-Anwendung
 3) Die FileServerApplication Klasse zuerst ausführen und danach die LoginUI Klasse starten, um die Anwendung zu öffnen.
 
